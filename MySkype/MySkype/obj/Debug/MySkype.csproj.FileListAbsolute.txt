@@ -1,0 +1,11 @@
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\bin\Debug\MySkype.exe.config
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\bin\Debug\MySkype.exe
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\bin\Debug\MySkype.pdb
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.LOGIN.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Properties.Resources.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csproj.GenerateResource.Cache
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.exe
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.pdb
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.MainFrm.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csprojResolveAssemblyReference.cache
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.My_MessageBox.resources
