@@ -114,6 +114,30 @@
   <ItemGroup>
     <None Include="Resources\退出.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Emoji.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\file.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\History.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shots.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\afternoon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\evening.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\morning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\night.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

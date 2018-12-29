@@ -25,21 +25,109 @@ namespace MySkype
 {
     public partial class MainFrm : Form
     {
+        /* 监听过程需要使用的变量 */
         private Thread LstThd;//后台侦听线程
         private TcpListener LstTcp;//侦听来自TCP网络客户端的连接
-        //public List<Myfriends> myfriends;//保存好友信息
+        private TcpClient client;
+        private byte[] LstBuffer = new byte[1024];
+
         public static IPAddress LocalIP { get; set; }//本机IP
         //private Myfriends newfriend;//新加好友
+        //public List<Myfriends> myfriends;//保存好友信息
         My_MessageBox MyMessageBox = new My_MessageBox();
 
         public MainFrm()
         {
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
-            Info_account.Text = Glb_Value.Account;
-
+            
             Glb_Value.Chat_Frd = Glb_Value.Account; //假设当前聊天的即为自己
+            // 欢迎信息
+            Info_account.Text = Glb_Value.Account;
+            int CurHour = DateTime.Now.Hour;
+            if (CurHour > 19)
+            {
+                Info.Text = "Good Evening";
+                Welcome_img.Image = new Bitmap(Properties.Resources.evening, Welcome_img.Width, Welcome_img.Height);
+            }
+            else if (CurHour > 13)
+            {
+                Info.Text = "Good Afternoon";
+                Welcome_img.Image = new Bitmap(Properties.Resources.afternoon, Welcome_img.Width, Welcome_img.Height);
+            }
+            else if (CurHour > 6)
+            {
+                Info.Text = "Good Morning";
+                Welcome_img.Image = new Bitmap(Properties.Resources.morning, Welcome_img.Width, Welcome_img.Height);
+            }
+            else
+            {
+                Info.Text = "Don't stay up!";
+                Welcome_img.Image = new Bitmap(Properties.Resources.night, Welcome_img.Width, Welcome_img.Height);
+            }
+
+            LstThd = new Thread(Listen);
+            LstThd.IsBackground = true;
+            LstThd.Start();//开始后台进程的侦听程序
+
         }
+
+        /*
+         ------------ 开始后台线程监听别人发的消息 -------------
+         // TODO: ? what is the theory?????
+             */
+        private void Listen()
+        {
+            int LstPort = int.Parse(Glb_Value.Account.Substring(5)) + 10000;//侦听端口定义为用户名后五位(学号后五位不重复)加上10000
+            LstTcp = new TcpListener(IPAddress.Any, LstPort);//设定本机侦听的IP和端口号
+            LstTcp.Start();//开始侦听
+            AsyncCallback LisCallback = new AsyncCallback(AcpClientCallback);//异步方法处理
+            LstTcp.BeginAcceptTcpClient(LisCallback, LstTcp);//开始一个异步操作来接受一个传入的连接尝试
+        }
+        private void AcpClientCallback(IAsyncResult ar)//回调函数
+        {
+            LstTcp = (TcpListener)ar.AsyncState;
+            client = LstTcp.EndAcceptTcpClient(ar);
+            Thread AcpThread = new Thread(get_whats_in_message);  //收到聊天后单独开线程处理接收信息
+            AcpThread.Start();
+            AsyncCallback LisCallback = new AsyncCallback(AcpClientCallback);
+            LstTcp.BeginAcceptTcpClient(LisCallback, LstTcp);//继续准备接受其它聊天请求
+        }
+        private void get_whats_in_message()//获得收到信息中内容
+        {
+            NetworkStream Strm2Frd = client.GetStream();//提取网络数据流
+            byte[] buf = new byte[1000];//10位学号，20字节
+            int bytesRd = 0;
+            try
+            {
+                bytesRd = Strm2Frd.Read(buf, 0, 1000);//试读1000位(多)
+            }
+            catch { }
+            byte[] msg = Encoding.Default.GetBytes("hi");//接收到好友尝试连接之后回复hi
+            try
+            {
+                Strm2Frd.Write(msg, 0, msg.Length);
+            }
+            catch { }
+            string FrdName = Encoding.Default.GetString(buf, 0, bytesRd);//获得好友用户名
+            int byteMessage = 0;
+            try
+            {
+                byteMessage = Strm2Frd.Read(LstBuffer, 0, 1000);//试读1000位
+            }
+            catch { }
+            string received_words = Encoding.Default.GetString(LstBuffer, 0, byteMessage);
+            if (received_words.StartsWith("/**begin-file-transport**/"))
+            {
+                //receive_file(FrdName, received_words, Stream2Friend);
+            }
+            else
+            {
+                //process_message(FrdName, received_words);//跨线程处理信息+回显
+            }
+        }
+
+
 
         /*
          ------------- 查找朋友 并发起聊天 -------------
@@ -67,11 +155,12 @@ namespace MySkype
                     }
                     else
                     {
-                        DialogResult Dr = MessageBox.Show("This friend has been found, chat now?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);                 
+                        DialogResult Dr = MessageBox.Show("This friend is online, chat now?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);                 
                         if (Dr == DialogResult.OK)
                         {
                             // 开始聊天
                             Frd_name.Text = Search_frd.Text;
+                            Glb_Value.Chat_Frd = Search_frd.Text;
                             // TODO:
                         }
                     }
@@ -129,7 +218,6 @@ namespace MySkype
                     client.Close();
                     return Result;
                 }
-
                 if (msg_get[0] == 'n')//朋友不在线
                 {
                     MessageBox.Show("The friend is offline know", "OfflineError", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -158,7 +246,9 @@ namespace MySkype
             }
         }
 
-        //退出登录
+        /*
+            --------------  退出登录 ---------------
+            */
         private void Exit_button_Click(object sender, EventArgs e)
         {
             DialogResult Dr = MessageBox.Show("Ready to logout?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
@@ -180,9 +270,8 @@ namespace MySkype
                     NetworkStream Strm2Ser = client.GetStream();
                     string Info2Ser = "logout" + Glb_Value.Account;
                     byte[] msg = Encoding.Default.GetBytes(Info2Ser);
-                    Strm2Ser.Write(msg, 0, msg.Length); // write into the stream
-                    //Strm2Ser.Read(msg, 0, msg.Length); // read stream from the server
-
+                    Strm2Ser.Write(msg, 0, msg.Length); // write into the stream                                                      
+                    // read stream from the server
                     byte[] msg_get = new byte[50];
                     int bytesRead = 0;
                     Strm2Ser.ReadTimeout = 1000;
@@ -201,8 +290,6 @@ namespace MySkype
                     string succ_flag = Encoding.Default.GetString(msg_get, 0, bytesRead);
                     Regex r = new Regex(@"^loo");
 
-                    //if successfully log in which means the account and password is right
-                    //if (msg[0] == 'l' && msg[1] == 'o' && msg[2] == 'l' && istimeout == false) // if you directly use msg is just ok
                     if (r.IsMatch(@succ_flag) && istimeout == false)
                     {
                         MessageBox.Show("Succeed Logout! See you next time", "Byebye", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -222,6 +309,44 @@ namespace MySkype
                 }
             }
             
+        }
+
+        /*
+            ------------- 发送文本消息 ---------------
+             */
+        private void Chat_send_Click(object sender, EventArgs e)
+        {
+            // 这里规定不能给自己发送消息
+            if (Glb_Value.Chat_Frd == Glb_Value.Account)
+            {
+                MessageBox.Show("Don't Speak to Yourself!", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                Chat_cmd.Clear();
+            }
+            // 发送框为空
+            else if (Chat_cmd.Text.Length == 0)
+            {
+                MessageBox.Show("Empty Content!", "ContentError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                // 正式发送
+            }
+        }
+
+        private void Chat_send_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Chat_cmd.Text.Length == 0)
+            {
+                MyMessageBox.set_message("Notice Empty Content!");
+                Point pt = Control.MousePosition;
+                MyMessageBox.set_position(pt.X + 5, pt.Y + 5);
+                MyMessageBox.Show();
+            }
+        }
+
+        private void Chat_send_MouseLeave(object sender, EventArgs e)
+        {
+            MyMessageBox.Visible = false;
         }
     }
 }
