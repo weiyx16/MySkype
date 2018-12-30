@@ -13,6 +13,9 @@ namespace MySkype
         public static int ServerPort { get; set; }//8000
         public static bool login_cls { get; set; }
 
+        // 当前登录者的账号与Ip
         public static string Chat_Frd { get; set; }
+
+        public static string Chat_Frd_IP { get; set; }
     }
 }

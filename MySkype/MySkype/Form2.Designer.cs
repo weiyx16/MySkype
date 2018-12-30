@@ -43,6 +43,7 @@
             this.Emoji = new System.Windows.Forms.PictureBox();
             this.Exit_button = new System.Windows.Forms.PictureBox();
             this.Search_button = new System.Windows.Forms.PictureBox();
+            this.Chat_quit = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Welcome_img)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.History)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Shots)).BeginInit();
@@ -114,6 +115,7 @@
             // 
             // Chat_flowLayout
             // 
+            this.Chat_flowLayout.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.Chat_flowLayout.Location = new System.Drawing.Point(201, 53);
             this.Chat_flowLayout.Name = "Chat_flowLayout";
             this.Chat_flowLayout.Size = new System.Drawing.Size(414, 255);
@@ -185,11 +187,21 @@
             this.Search_button.TabStop = false;
             this.Search_button.Click += new System.EventHandler(this.Search_button_Click);
             // 
+            // Chat_quit
+            // 
+            this.Chat_quit.Location = new System.Drawing.Point(201, 425);
+            this.Chat_quit.Name = "Chat_quit";
+            this.Chat_quit.Size = new System.Drawing.Size(95, 22);
+            this.Chat_quit.TabIndex = 14;
+            this.Chat_quit.Text = "Quit Current";
+            this.Chat_quit.UseVisualStyleBackColor = true;
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(626, 454);
+            this.Controls.Add(this.Chat_quit);
             this.Controls.Add(this.Welcome_img);
             this.Controls.Add(this.History);
             this.Controls.Add(this.Shots);
@@ -235,5 +247,6 @@
         private System.Windows.Forms.PictureBox Shots;
         private System.Windows.Forms.PictureBox History;
         private System.Windows.Forms.PictureBox Welcome_img;
+        private System.Windows.Forms.Button Chat_quit;
     }
 }

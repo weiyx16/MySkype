@@ -29,7 +29,7 @@ namespace MySkype
         private Thread LstThd;//后台侦听线程
         private TcpListener LstTcp;//侦听来自TCP网络客户端的连接
         private TcpClient client;
-        private byte[] LstBuffer = new byte[1024];
+        private byte[] LstBuffer = new byte[1024];//接收对方发送的信息
 
         public static IPAddress LocalIP { get; set; }//本机IP
         //private Myfriends newfriend;//新加好友
@@ -66,9 +66,10 @@ namespace MySkype
                 Welcome_img.Image = new Bitmap(Properties.Resources.night, Welcome_img.Width, Welcome_img.Height);
             }
 
+            //开始后台进程的侦听程序
             LstThd = new Thread(Listen);
             LstThd.IsBackground = true;
-            LstThd.Start();//开始后台进程的侦听程序
+            LstThd.Start();
 
         }
 
@@ -78,55 +79,82 @@ namespace MySkype
              */
         private void Listen()
         {
-            int LstPort = int.Parse(Glb_Value.Account.Substring(5)) + 10000;//侦听端口定义为用户名后五位(学号后五位不重复)加上10000
-            LstTcp = new TcpListener(IPAddress.Any, LstPort);//设定本机侦听的IP和端口号
-            LstTcp.Start();//开始侦听
-            AsyncCallback LisCallback = new AsyncCallback(AcpClientCallback);//异步方法处理
-            LstTcp.BeginAcceptTcpClient(LisCallback, LstTcp);//开始一个异步操作来接受一个传入的连接尝试
+            //监听本用户名对应的串口是否有消息传入
+            int LstPort = int.Parse(Glb_Value.Account.Substring(5)) + 10000;
+            LstTcp = new TcpListener(IPAddress.Any, LstPort);
+            LstTcp.Start();// 开始侦听Tcp接入的请求
+            // 如果受到接入请求，调用回调函数进行异步处理
+            AsyncCallback LisCallback = new AsyncCallback(AcpClientCallback);
+            LstTcp.BeginAcceptTcpClient(LisCallback, LstTcp);
         }
-        private void AcpClientCallback(IAsyncResult ar)//回调函数
+        private void AcpClientCallback(IAsyncResult ar)
         {
             LstTcp = (TcpListener)ar.AsyncState;
             client = LstTcp.EndAcceptTcpClient(ar);
-            Thread AcpThread = new Thread(get_whats_in_message);  //收到聊天后单独开线程处理接收信息
+            // 如果收到信息，调用一个新线程 执行Acp_msg函数接收这次信息
+            Thread AcpThread = new Thread(Acp_msg);
             AcpThread.Start();
+            // 确保继续监听其他请求
             AsyncCallback LisCallback = new AsyncCallback(AcpClientCallback);
-            LstTcp.BeginAcceptTcpClient(LisCallback, LstTcp);//继续准备接受其它聊天请求
+            LstTcp.BeginAcceptTcpClient(LisCallback, LstTcp);
         }
-        private void get_whats_in_message()//获得收到信息中内容
+
+        // 接受别人发送的信息（文本 或者 文件（含表情/截图/正式文件））
+        private void Acp_msg()
         {
-            NetworkStream Strm2Frd = client.GetStream();//提取网络数据流
-            byte[] buf = new byte[1000];//10位学号，20字节
-            int bytesRd = 0;
+            NetworkStream Strm2Frd = client.GetStream();
+            //先接收对方的握手信息（学号）
+            byte[] test_msg = new byte[1000];//10位学号，20字节
+            int bytes_length = 0;
             try
             {
-                bytesRd = Strm2Frd.Read(buf, 0, 1000);//试读1000位(多)
+                bytes_length = Strm2Frd.Read(test_msg, 0, 1000);
             }
             catch { }
-            byte[] msg = Encoding.Default.GetBytes("hi");//接收到好友尝试连接之后回复hi
+            //接收到好友尝试连接之后先回复Test，有了第一次握手
+            byte[] msg = Encoding.Default.GetBytes("Test");
             try
             {
                 Strm2Frd.Write(msg, 0, msg.Length);
             }
             catch { }
-            string FrdName = Encoding.Default.GetString(buf, 0, bytesRd);//获得好友用户名
-            int byteMessage = 0;
+            //同时把之前收到的信息转化成字符串，提取对方的身份（学号）
+            string FrdName = Encoding.Default.GetString(test_msg, 0, bytes_length);
+
+            //读取正式信息 先读取了前1000位，判断是普通文本还是文件（文件发送默认有编码头/**begin-file-transport**/）
+            bytes_length = 0;
             try
             {
-                byteMessage = Strm2Frd.Read(LstBuffer, 0, 1000);//试读1000位
+                bytes_length = Strm2Frd.Read(LstBuffer, 0, 1000);
             }
             catch { }
-            string received_words = Encoding.Default.GetString(LstBuffer, 0, byteMessage);
+            //查看接收信息头
+            string received_words = Encoding.Default.GetString(LstBuffer, 0, bytes_length);
             if (received_words.StartsWith("/**begin-file-transport**/"))
             {
                 //receive_file(FrdName, received_words, Stream2Friend);
+                //TODO:
             }
             else
             {
-                //process_message(FrdName, received_words);//跨线程处理信息+回显
+                //收到了普通文本
+                process_message(FrdName, received_words);//跨线程处理信息+回显
             }
         }
 
+        //处理收到的文字信息
+        private void process_message(string FrdName, string received_words)
+        {
+            //注意这里Acp_msg是由另一个监听的异步触发产生的线程所调用的，需要特殊的处理
+            //那么怎么处理呢？
+            //有个问题，当我在和A聊天，然后B给我发消息了，怎么办
+            //TODO 这里先假设我就只和A聊天
+            //先获取对方的Ip地址
+            Glb_Value.Chat_Frd_IP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+            Glb_Value.Chat_Frd = FrdName;
+            Frd_name.Text = FrdName;
+            //TODONOW
+        }
 
 
         /*
@@ -149,7 +177,7 @@ namespace MySkype
                 }
                 else
                 {
-                    string Frd_IP = Check_Online(this.Search_frd.Text, true);
+                    string Frd_IP = Check_Online(this.Search_frd.Text);
                     if (Frd_IP == "Fail") {
                         Search_frd.Clear();
                     }
@@ -158,10 +186,10 @@ namespace MySkype
                         DialogResult Dr = MessageBox.Show("This friend is online, chat now?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);                 
                         if (Dr == DialogResult.OK)
                         {
-                            // 开始聊天
+                            // 可以开始聊天
                             Frd_name.Text = Search_frd.Text;
                             Glb_Value.Chat_Frd = Search_frd.Text;
-                            // TODO:
+                            Glb_Value.Chat_Frd_IP = Frd_IP;
                         }
                     }
                 }
@@ -180,7 +208,7 @@ namespace MySkype
         }
 
         //查看对应Ip的朋友是否在线
-        private string Check_Online(string FrdName, bool show)
+        private string Check_Online(string FrdName)
         {
             string Result = "Fail";
 
@@ -314,6 +342,7 @@ namespace MySkype
         /*
             ------------- 发送文本消息 ---------------
              */
+        // 点击消息发送时的调用
         private void Chat_send_Click(object sender, EventArgs e)
         {
             // 这里规定不能给自己发送消息
@@ -325,21 +354,123 @@ namespace MySkype
             // 发送框为空
             else if (Chat_cmd.Text.Length == 0)
             {
-                MessageBox.Show("Empty Content!", "ContentError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MyMessageBox.set_message("Notice Empty Content!");
+                Point pt = Control.MousePosition;
+                MyMessageBox.set_position(pt.X, pt.Y + 10);
+                MyMessageBox.Show();
             }
             else
             {
                 // 正式发送
+                List<string> messages = Seg_Img_Text(Glb_Value.Chat_Frd);
+                Chat_cmd.Clear();
+                string Img_head = "/**Is-a-Img**/"; // 注意这个要和后面进行图片文字分割时统一
+                for (int i = 0; i < messages.Count; i++)
+                {
+                    // 如果找到照片数据流，以文件形式处理
+                    if (messages[i].StartsWith(Img_head))
+                    {
+                        string Img_name = Glb_Value.Chat_Frd + messages[i].Substring(Img_head.Length);
+                        try {
+                            // 开一个新的文件线程
+                            // TODO做截图时用
+                            Thread SendFile;
+                        }
+                        catch { } 
+                    }
+                    // 普通文本传递
+                    else
+                    {
+                        bool send_suc = Send_Text(messages[i]);
+                        if (!send_suc)
+                        {
+                            MessageBox.Show("Your friend logs out", "MissError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            break; // 出现连接失败、对方下线等各种情况下，就停止发送！
+                        }
+                        else
+                        {
+                            //怎么显示在flowoutlayer上？
+                            //TODO
+                            MessageBox.Show(messages[i], "Have Sent!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        }
+                    }
+                }
+            }
+        }
+        // 发送纯本文函数 成功返回true
+        private bool Send_Text(string msg)
+        {
+            // 每次发送前再次确认对方Ip和在线状态
+            string Frd_IP = Check_Online(Glb_Value.Chat_Frd);
+            if (Frd_IP == "Fail")
+            {
+                return false;
+            }
+            else
+            {
+                Glb_Value.Chat_Frd_IP = Frd_IP;
+                TcpClient client = new TcpClient();
+                // 先尝试连接对应的Ip+端口
+                try
+                {
+                    int port = Convert.ToInt16(Glb_Value.Chat_Frd.Substring(5)) + 10000; // 此端口协议双方协定好了
+                    client.Connect(Frd_IP, port);
+                }
+                catch { }
+                if (client.Connected)
+                {
+                    NetworkStream Strm2Frd = client.GetStream();
+                    // 约定发送方每次发送信息，先发送自身账号确保接收方正确返回Test作为ACK，再进行后续的发送
+                    byte[] testmsg = Encoding.Default.GetBytes(Glb_Value.Account);
+                    Strm2Frd.Write(testmsg, 0, testmsg.Length);
+
+                    byte[] msg_get = new byte[testmsg.Length];
+                    int bytes_length = 0;
+                    Strm2Frd.ReadTimeout = 1000;
+                    try
+                    {
+                        bytes_length = Strm2Frd.Read(msg_get, 0, msg_get.Length);
+                    }
+                    catch
+                    {                       
+                        Strm2Frd.Close();
+                        client.Close();
+                        return false;
+                    }
+                    string succ_flag = Encoding.Default.GetString(msg_get, 0, bytes_length);
+                    Regex r = new Regex(@"^Test");
+                    if (r.IsMatch(@succ_flag))
+                    {
+                        byte[] Sendmsg = Encoding.Default.GetBytes(msg);
+                        try
+                        {
+                            Strm2Frd.Write(Sendmsg, 0, msg.Length);
+                        }
+                        catch { }
+                        Strm2Frd.Close();
+                        client.Close();
+                        return true;
+                    }
+                    else
+                    {
+                        Strm2Frd.Close();
+                        client.Close();
+                        return false;
+                    }
+                }
+                // Tcp建立失败
+                return false;
             }
         }
 
+        // 空文本发送时的提示
         private void Chat_send_MouseMove(object sender, MouseEventArgs e)
         {
             if (Chat_cmd.Text.Length == 0)
             {
                 MyMessageBox.set_message("Notice Empty Content!");
                 Point pt = Control.MousePosition;
-                MyMessageBox.set_position(pt.X + 5, pt.Y + 5);
+                MyMessageBox.set_position(pt.X, pt.Y + 10);
                 MyMessageBox.Show();
             }
         }
@@ -347,6 +478,31 @@ namespace MySkype
         private void Chat_send_MouseLeave(object sender, EventArgs e)
         {
             MyMessageBox.Visible = false;
+        }
+
+        // 使用发送截图时直接复制到rich text box中，可能出现文字图片混合情况，分开发送
+        private List<string> Seg_Img_Text(string Chat_Frd)
+        {
+            // 创建存储发送图片的文件夹 TODO不知道有什么用
+            string spath = ".\\" + Glb_Value.Account + "\\Send" + "\\To" + Chat_Frd;
+            // 创建信息列表
+            List<string> messages = new List<string>();
+            List<string> pictures = new List<string>();
+            // 先判断是否有图片
+            if (Chat_cmd.Rtf.IndexOf(@"{\pict\") > -1)
+            {
+                //TODO做截图时用
+                //注意在图片数据头上加上head：/**Is-a-Img**/ 便于发送时区别发送
+            }
+            else
+            {
+                string _msg = Chat_cmd.Text;
+                if (_msg.Length > 0)
+                {
+                    messages.Add(_msg);
+                }
+            }
+            return messages;
         }
     }
 }

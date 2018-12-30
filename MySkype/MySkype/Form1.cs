@@ -66,12 +66,12 @@ namespace MySkype
                     //Strm2Ser.Read(msg, 0, msg.Length); // read stream from the server
 
                     byte[] msg_get = new byte[50];
-                    int bytesRead = 0;
+                    int bytes_length = 0;
                     Strm2Ser.ReadTimeout = 1000;
                     bool istimeout = false;
                     try
                     {
-                        bytesRead = Strm2Ser.Read(msg_get, 0, 50);
+                        bytes_length = Strm2Ser.Read(msg_get, 0, 50);
                     }
                     catch
                     {
@@ -80,7 +80,7 @@ namespace MySkype
                         Strm2Ser.Close();
                         client.Close();
                     }
-                    string succ_flag = Encoding.Default.GetString(msg_get, 0, bytesRead);
+                    string succ_flag = Encoding.Default.GetString(msg_get, 0, bytes_length);
                     Regex r = new Regex(@"^lol");
                     
                     //if successfully log in which means the account and password is right
@@ -107,6 +107,7 @@ namespace MySkype
             }
         }
 
+        // 初始判断登录合法性
         public bool Account_judge()
         {
             string account = Account.Text;
@@ -138,7 +139,7 @@ namespace MySkype
                     return login_confirm_flag;
                 }
                 */
-                // repear login
+                // repeat login
                 int Port = int.Parse(account.Substring(5)) + 10000; //11422->21422
                 if (Port_Occupy(Port)){
                     MessageBox.Show("This account has logged in!", "ReLoginError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -151,7 +152,7 @@ namespace MySkype
             }
         }
 
-        public bool Port_Occupy(int cur_port)//检查我方端口是否被占用 (TODO) 貌似没啥用？
+        public bool Port_Occupy(int cur_port)//检查我方端口是否被占用 (TODO) 貌似没啥用？得到后面登录了打开监听的线程了才有用
         {
             bool port_occ = false;
             IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
@@ -188,6 +189,7 @@ namespace MySkype
         }
 
         // Help change the IP and Port
+        // 这个函数还没写 changeIp的窗口
         private void IP_change_MouseClick(object sender, MouseEventArgs e)
         {
             Change_IP change_ip = new Change_IP();
