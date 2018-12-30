@@ -31,7 +31,7 @@ namespace MySkype
             this.time_label.BringToFront();
             this.Chat_label.Text = chat_text;
             this.Chat_label.Visible = true;
-            this.Chat_label.Location = new Point(90, 30);
+            this.Chat_label.Location = new Point(90, 21);
             this.Chat_label.BringToFront();
             this.Sender.Text = Frd_name;
             this.Sender.BringToFront();
@@ -57,7 +57,7 @@ namespace MySkype
             this.picture.Width = 40;
             this.picture.Height = 40;
             this.picture.Image = new Bitmap(img, 40, 40);
-            this.picture.Location = new Point(90, 30);
+            this.picture.Location = new Point(90, 21);
             this.picture.Visible = true;
             this.picture.BringToFront();
             this.Chat_label.Visible = false;

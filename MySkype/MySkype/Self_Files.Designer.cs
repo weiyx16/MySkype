@@ -1,6 +1,6 @@
 ﻿namespace MySkype
 {
-    partial class Frd_Dialog
+    partial class Self_Files
     {
         /// <summary> 
         /// 必需的设计器变量。
@@ -30,8 +30,9 @@
         {
             this.time_label = new System.Windows.Forms.Label();
             this.Sender = new System.Windows.Forms.Label();
+            this.Process = new System.Windows.Forms.Label();
+            this.FileName = new System.Windows.Forms.Label();
             this.picture = new System.Windows.Forms.PictureBox();
-            this.Chat_label = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picture)).BeginInit();
             this.SuspendLayout();
             // 
@@ -47,40 +48,50 @@
             // Sender
             // 
             this.Sender.AutoSize = true;
-            this.Sender.Location = new System.Drawing.Point(19, 21);
+            this.Sender.Location = new System.Drawing.Point(335, 21);
             this.Sender.Name = "Sender";
             this.Sender.Size = new System.Drawing.Size(65, 12);
             this.Sender.TabIndex = 3;
             this.Sender.Text = "2016000000";
             // 
+            // Process
+            // 
+            this.Process.AutoSize = true;
+            this.Process.Location = new System.Drawing.Point(176, 43);
+            this.Process.Name = "Process";
+            this.Process.Size = new System.Drawing.Size(65, 12);
+            this.Process.TabIndex = 5;
+            this.Process.Text = "##########";
+            // 
+            // FileName
+            // 
+            this.FileName.AutoSize = true;
+            this.FileName.Location = new System.Drawing.Point(178, 24);
+            this.FileName.Name = "FileName";
+            this.FileName.Size = new System.Drawing.Size(29, 12);
+            this.FileName.TabIndex = 6;
+            this.FileName.Text = "name";
+            // 
             // picture
             // 
-            this.picture.Location = new System.Drawing.Point(90, 21);
+            this.picture.Image = global::MySkype.Properties.Resources.file_send_use;
+            this.picture.Location = new System.Drawing.Point(287, 21);
             this.picture.Name = "picture";
             this.picture.Size = new System.Drawing.Size(40, 40);
             this.picture.TabIndex = 4;
             this.picture.TabStop = false;
-            this.picture.Visible = false;
             // 
-            // Chat_label
-            // 
-            this.Chat_label.AutoSize = true;
-            this.Chat_label.Location = new System.Drawing.Point(90, 21);
-            this.Chat_label.Name = "Chat_label";
-            this.Chat_label.Size = new System.Drawing.Size(11, 12);
-            this.Chat_label.TabIndex = 5;
-            this.Chat_label.Text = "C";
-            // 
-            // Frd_Dialog
+            // Self_Files
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Snow;
-            this.Controls.Add(this.Chat_label);
+            this.Controls.Add(this.FileName);
+            this.Controls.Add(this.Process);
             this.Controls.Add(this.picture);
             this.Controls.Add(this.Sender);
             this.Controls.Add(this.time_label);
-            this.Name = "Frd_Dialog";
+            this.Name = "Self_Files";
             this.Size = new System.Drawing.Size(408, 70);
             ((System.ComponentModel.ISupportInitialize)(this.picture)).EndInit();
             this.ResumeLayout(false);
@@ -93,6 +104,7 @@
         private System.Windows.Forms.Label time_label;
         private System.Windows.Forms.Label Sender;
         private System.Windows.Forms.PictureBox picture;
-        private System.Windows.Forms.Label Chat_label;
+        private System.Windows.Forms.Label Process;
+        private System.Windows.Forms.Label FileName;
     }
 }

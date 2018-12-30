@@ -31,6 +31,8 @@ namespace MySkype
         private TcpClient client;
         private delegate void FlushClient(string FrdName, string received_words); //代理
         private byte[] LstBuffer = new byte[1024];//接收对方发送的信息
+        private delegate void File_Send_Show(string FileName, int i, int FileLength, int last_show); //文件传输中的代理
+        private delegate void File_Receive_Show(string FileName, int i, int FileLength, int last_show); //文件传输中的代理
 
         public static IPAddress LocalIP { get; set; }//本机IP
         //private Myfriends newfriend;//新加好友
@@ -47,6 +49,7 @@ namespace MySkype
             Chat_flowLayout.HorizontalScroll.Visible = false;
 
             Glb_Value.Chat_Frd = Glb_Value.Account; //假设当前聊天的即为自己
+            Glb_Value.Chatting = false;
             // 欢迎信息
             Frd_name.Text = Glb_Value.Chat_Frd;
             Info_account.Text = Glb_Value.Account;
@@ -169,7 +172,6 @@ namespace MySkype
         private void process_message(string FrdName, string received_words)
         {
             //注意这里Acp_msg是由另一个监听的异步触发产生的线程所调用的，需要特殊的处理
-            //那么怎么处理呢？
             //约束只能同时和一个人聊天/传送
             
             //等待异步 处理
@@ -190,20 +192,374 @@ namespace MySkype
                 Chat_flowLayout.Controls.Add(show_frds);
                 show_frds.Parent = Chat_flowLayout;
                 show_frds.Show();
+                MessageBox.Show(received_words, "FileReceiveError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
         /*
          -------------  收发文件处理 -------------
              */
-        //TODONOW:
-
-        private void receive_file(string FrdName, string msg, NetworkStream Stream2Friend)
+        //点击文件选择按钮，弹出目录选择
+        private void Files_Click(object sender, EventArgs e)
         {
-
+            // 限制不能发送给自己
+            if (Glb_Value.Chat_Frd == Glb_Value.Account)
+            {
+                MessageBox.Show("Don't Send files to Yourself!", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                OpenFileDialog Files_Chs_Dlg = new OpenFileDialog();
+                Files_Chs_Dlg.Filter = "All files (*.*)|*.*"; // 对文件种类没有限制
+                if (Files_Chs_Dlg.ShowDialog() == DialogResult.OK) // 弹出窗口选中后点击确定
+                {                   
+                    string filename = Glb_Value.Chat_Frd + Files_Chs_Dlg.FileName;
+                    // 由于文件本身作为参数，所以需要使用带参的线程
+                    Thread FileThread = new Thread(new ParameterizedThreadStart(Send_file));
+                    FileThread.Start((object)filename);
+                }
+            }
         }
 
+        //文件发送线程内执行的函数
+        private void Send_file(object filename)
+        {
+            string _filename = (string)filename;
+            string FrdName = Glb_Value.Chat_Frd; // _filename.Substring(0, 10);
+            string FilePath = _filename.Substring(10); // Files_Chs_Dlg.FileName;
+            string FileName = FilePath.Substring(FilePath.LastIndexOf('\\') + 1);
+            FileStream FileStrm = new FileStream(FilePath, FileMode.Open, FileAccess.Read);
+            int max_size = 1024;
+            byte[] fileBuffer = new byte[max_size]; //一次传输1024字节 1KB
+            int FileLength = (int)(FileStrm.Length + 1023) / 1024; // 获取目前文件是多少KB
+            if (FileLength > 0)
+            {
+                // 每次发送前再次确认对方Ip和在线状态 和 send_text一样
+                string Frd_IP = Check_Online(Glb_Value.Chat_Frd);
+                if (Frd_IP == "Fail")
+                {
+                    MessageBox.Show("The friend is not available.", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+                else
+                {
+                    Glb_Value.Chat_Frd_IP = Frd_IP;
+                    TcpClient client = new TcpClient();
+                    // 先尝试连接对应的Ip+端口
+                    try
+                    {
+                        int port = Convert.ToInt16(Glb_Value.Chat_Frd.Substring(5)) + 10000; // 此端口协议双方协定好了
+                        client.Connect(Frd_IP, port);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("The friend is not available.", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        return;
+                    }
+                    if (client.Connected)
+                    {
+                        NetworkStream Strm2Frd = client.GetStream();
+                        // 约定发送方每次发送信息，先发送自身账号确保接收方正确返回Hello作为ACK，再进行后续的发送
+                        byte[] testmsg = Encoding.Default.GetBytes(Glb_Value.Account);
+                        Strm2Frd.Write(testmsg, 0, testmsg.Length);
 
+                        byte[] msg_get = new byte[testmsg.Length];
+                        int bytes_length = 0;
+                        Strm2Frd.ReadTimeout = 10000;
+                        try
+                        {
+                            bytes_length = Strm2Frd.Read(msg_get, 0, msg_get.Length);
+                        }
+                        catch
+                        {
+                            Strm2Frd.Close();
+                            client.Close();
+                            return;
+                        }
+                        string succ_flag = Encoding.Default.GetString(msg_get, 0, bytes_length);
+                        Regex suc = new Regex(@"^Hello");
+                        Regex busy = new Regex(@"^Sorry");
+                        if (suc.IsMatch(@succ_flag)) {
+                            //双方交互协议与文本相同，在这里进行传送
+                            //只不过文件传送在文件前加上一个头
+                            byte[] headmsg = Encoding.Default.GetBytes("/**begin-file-transport**/" + "/*FileName*/" + FileName + "/*FileLength*/" + FileLength.ToString());
+                            try
+                            {
+                                Strm2Frd.Write(headmsg, 0, headmsg.Length);
+                            }
+                            catch { }
+                            // 文件头发送完毕，对方get要发送文件了！以及对文件大小也有了预判
+                            // 接下来传送文件body!
+                            Strm2Frd.WriteTimeout = 10000;
+                            int i = 0;
+                            int last_show = 0;
+                            bool success = true;
+                            for (i = 0; i < FileLength; i++)
+                            {
+                                try
+                                {
+                                    int bufsize = FileStrm.Read(fileBuffer, 0, max_size); // 从文件中读取的
+                                    if (bufsize > 0)
+                                    {
+                                        Strm2Frd.Write(fileBuffer, 0, bufsize);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("The friend is not available. And the transport failed", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                        //传递失败，如果有控件的话，显示失败
+                                        file_send_show(FileName, i, FileLength, -1);
+                                        success = false;
+                                        break;
+                                    }
+                                }
+                                catch
+                                {
+                                    MessageBox.Show("The friend is not available. And the transport failed", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    //传递失败，如果有控件的话，显示失败
+                                    file_send_show(FileName, i, FileLength, -1);
+                                    success = false;
+                                    break;
+                                }
+                                //可以在这里显示传递进度（以控件的形式）每10%更新一次进度
+                                if (((i + 1) * 10) / FileLength >= last_show) { 
+                                    file_send_show(FileName, i, FileLength, last_show);
+                                    last_show += 1;
+                                }
+                            }
+                            //发送完毕
+                            FileStrm.Flush();
+                            FileStrm.Close();
+                            Strm2Frd.Close();
+                            client.Close();
+                            if (success) { 
+                                MessageBox.Show("Succeed to transport the file.", "Succeed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                        else if (busy.IsMatch(@succ_flag))
+                        {
+                            //对方退出了当前的窗口，那么也就不维护了，停止发送！
+                            FileStrm.Flush();
+                            FileStrm.Close();
+                            Strm2Frd.Close();
+                            client.Close();
+                            MessageBox.Show("The friend is not available.", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            return;
+                        }
+                        else
+                        {
+                            //完全不行的情况
+                            FileStrm.Flush();
+                            FileStrm.Close();
+                            Strm2Frd.Close();
+                            client.Close();
+                            MessageBox.Show("The friend is not available.", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        //建立TCP失败了
+                        FileStrm.Flush();
+                        FileStrm.Close();
+                        client.Close();
+                        MessageBox.Show("The friend is not available.", "ObjectError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                FileStrm.Flush();
+                FileStrm.Close();
+                MessageBox.Show("The file size is out of range.", "FileSizeError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        //文件接收线程调用的函数
+        private void receive_file(string FrdName, string msg, NetworkStream Strm2Frd)
+        {
+            //更新我当前对话方的Ip地址，用户名以及界面上的信息
+            Glb_Value.Chat_Frd_IP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+            Glb_Value.Chat_Frd = FrdName;
+            Frd_name.Text = FrdName;
+
+            //当前msg即是对方发过来的文件头，有文件名/文件长度和注明是文件信息的公共头
+            //首先进行解析！
+            string filehead = "/**begin-file-transport**/";
+            string FileNameLabel = "/*FileName*/";
+            string FileLengthLabel = "/*FileLength*/";
+            msg = msg.Substring(filehead.Length + FileNameLabel.Length); // 先把头去掉
+            int Name_location = msg.IndexOf(FileLengthLabel);
+            int Length_location = Name_location + FileLengthLabel.Length;
+            string FileName = msg.Substring(0, Name_location);
+            int FileLength = int.Parse(msg.Substring(Length_location));
+
+            //为接收的文件找到存储的位置
+            string SavePath = ".\\" + Glb_Value.Account + "\\Download";
+            if (Directory.Exists(SavePath)) { }
+            else
+            {
+                DirectoryInfo directory = new DirectoryInfo(SavePath);
+                directory.Create();
+            }
+            SavePath = SavePath + "\\" + FileName;
+            //由于同名文件会存在，先解决文件名冲突的问题
+            FileStream WRStream; // 主要思想就是拿一个FileStream取尝试写这个同名文件
+            for (int number=1; ; number++)
+            {
+                try
+                {
+                    WRStream = new FileStream(SavePath, FileMode.CreateNew, FileAccess.Write);
+                    break; // 成功了就break，否则往后头加(number)
+                }
+                catch
+                {
+                    if (number == 1)
+                    {  
+                        // 该文件还没有冲突过，所以文件名正常 
+                        int format_index = SavePath.LastIndexOf("."); // 先找到后缀的位置
+                        string format = SavePath.Substring(format_index);
+                        string _filename = SavePath.Substring(0, format_index);
+                        SavePath = _filename + "(1)" + format;
+                    }
+                    else
+                    {
+                        // 该文件已经冲突过了，文件名后面已经有(x)，只能改成(x+1)
+                        int format_index = SavePath.LastIndexOf("."); // 先找到后缀的位置
+                        string format = SavePath.Substring(format_index);
+                        string _filename = SavePath.Substring(0, format_index-3); // 去掉(x)的文件名
+                        SavePath = _filename + "(" + number.ToString() + ")" + format;
+                    }
+                }
+            }
+            //正式接收了！
+            byte[] FileBuffer = new byte[1024]; //1KB-by-1KB
+            Strm2Frd.ReadTimeout = 10000;
+            bool success = true;
+            int last_show = 0;
+            for (int i=0; i < FileLength; i++)
+            {
+                try
+                {
+                    int bufsize = Strm2Frd.Read(FileBuffer, 0, 1024);
+                    if (bufsize > 0) //成功接收，存到文件中
+                    {
+                        WRStream.Write(FileBuffer, 0, bufsize);
+                    }
+                    else
+                    {
+                        //传递失败，如果有控件的话，显示失败
+                        file_receive_show(FileName, i, FileLength, -1);
+                        MessageBox.Show("Fail to receive files.", "FileReceiveError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        success = false;
+                        break;
+                    }
+                }
+                catch
+                {
+                    //传递失败，如果有控件的话，显示失败
+                    file_receive_show(FileName, i, FileLength, -1);
+                    MessageBox.Show("Fail to receive files.", "FileReceiveError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    success = false;
+                    break;
+                }
+                //可以在这里显示传递进度（以控件的形式）
+                if (((i + 1) * 10) / FileLength >= last_show)
+                {
+                    file_receive_show(FileName, i, FileLength, last_show);
+                    last_show += 1;
+                }
+            }
+            // 传送成功
+            WRStream.Flush();
+            WRStream.Close();
+            Strm2Frd.Close();
+            if (success) {
+                MessageBox.Show("Succeed Receive File.", "Succeed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        //文件传输进度显示的相关函数
+        private void file_send_show(string FileName, int i, int FileLength, int last_show)
+        {
+            //注意这里函数是由另一个监听的异步触发产生的线程所调用的，需要特殊的处理
+
+            //等待异步 处理
+            //调用方位于创建控件线程之外的线程里，所以对调用方进行invoke
+            if (this.Chat_flowLayout.InvokeRequired)
+            {
+                File_Send_Show fss= new File_Send_Show(file_send_show);
+                this.Invoke(fss, new object[] { FileName, i, FileLength, last_show }); //通过代理调用刷新方法
+            }
+            else
+            {
+                if (last_show == 0)
+                {
+                    Self_Files show_mine_file = new Self_Files(FileName, (int)(((i + 1) * 10) / FileLength));
+                    this.Chat_flowLayout.Controls.Add(show_mine_file);
+                    show_mine_file.Parent = this.Chat_flowLayout;
+                    show_mine_file.Show();
+                }
+                else if(last_show!=-1)
+                {
+                    Self_Files show_mine_file = new Self_Files(FileName, (int)(((i + 1) * 10) / FileLength));
+                    int curr_num = Chat_flowLayout.Controls.Count - 1;
+                    Control remove_one = Chat_flowLayout.Controls[curr_num];
+                    Chat_flowLayout.Controls.Remove(remove_one);
+                    this.Chat_flowLayout.Controls.Add(show_mine_file);
+                    show_mine_file.Parent = this.Chat_flowLayout;
+                    show_mine_file.Show();
+                }
+                else
+                {
+                    Self_Files show_mine_file = new Self_Files(FileName, -1);
+                    this.Chat_flowLayout.Controls.Add(show_mine_file);
+                    show_mine_file.Parent = this.Chat_flowLayout;
+                    show_mine_file.Show();
+                }
+            }
+        }
+
+        private void file_receive_show(string FileName, int i, int FileLength, int last_show)
+        {
+            //注意这里函数是由另一个监听的异步触发产生的线程所调用的，需要特殊的处理
+
+            //等待异步 处理
+            //调用方位于创建控件线程之外的线程里，所以对调用方进行invoke
+            if (this.Chat_flowLayout.InvokeRequired)
+            {
+                File_Receive_Show fss = new File_Receive_Show(file_receive_show);
+                this.Invoke(fss, new object[] { FileName, i, FileLength, last_show }); //通过代理调用刷新方法
+            }
+            else
+            {
+                if (last_show == 0)
+                {
+                    Frd_Files show_mine_file = new Frd_Files(FileName, (int)(((i + 1) * 10) / FileLength));
+                    this.Chat_flowLayout.Controls.Add(show_mine_file);
+                    show_mine_file.Parent = this.Chat_flowLayout;
+                    show_mine_file.Show();
+                }
+                else if (last_show != -1)
+                {
+                    //先前已经有一个文件传输状态的控件了。把这个控件删掉，然后更新新的控件
+                    Frd_Files show_mine_file = new Frd_Files(FileName, (int)(((i + 1) * 10) / FileLength));
+                    int curr_num = Chat_flowLayout.Controls.Count - 1;
+                    Control remove_one = Chat_flowLayout.Controls[curr_num];
+                    Chat_flowLayout.Controls.Remove(remove_one);
+                    this.Chat_flowLayout.Controls.Add(show_mine_file);
+                    show_mine_file.Parent = this.Chat_flowLayout;
+                    show_mine_file.Show();
+                }
+                else
+                {
+                    Frd_Files show_mine_file = new Frd_Files(FileName, -1);
+                    this.Chat_flowLayout.Controls.Add(show_mine_file);
+                    show_mine_file.Parent = this.Chat_flowLayout;
+                    show_mine_file.Show();
+                }
+            }
+        }
 
         /*
          ------------- 查找朋友 并发起聊天 -------------
@@ -419,6 +775,7 @@ namespace MySkype
                     // 如果找到照片数据流，以文件形式处理
                     if (messages[i].StartsWith(Img_head))
                     {
+                        //去掉之前检索图片的头，加上目标用户名的头，和文件发送相同
                         string Img_name = Glb_Value.Chat_Frd + messages[i].Substring(Img_head.Length);
                         try {
                             // 开一个新的文件线程
@@ -476,7 +833,7 @@ namespace MySkype
 
                     byte[] msg_get = new byte[testmsg.Length];
                     int bytes_length = 0;
-                    Strm2Frd.ReadTimeout = 1000;
+                    Strm2Frd.ReadTimeout = 10000;
                     try
                     {
                         bytes_length = Strm2Frd.Read(msg_get, 0, msg_get.Length);
@@ -572,6 +929,20 @@ namespace MySkype
                 Frd_name.Text = Glb_Value.Account;
                 this.Chat_flowLayout.Controls.Clear();
             }
+        }
+
+        //划过文件按钮有显示
+        private void Files_MouseMove(object sender, MouseEventArgs e)
+        {
+            MyMessageBox.set_message("Send files here!");
+            Point pt = Control.MousePosition;
+            MyMessageBox.set_position(pt.X, pt.Y + 10);
+            MyMessageBox.Show();
+        }
+
+        private void Files_MouseLeave(object sender, EventArgs e)
+        {
+            MyMessageBox.Visible = false;
         }
     }
 }

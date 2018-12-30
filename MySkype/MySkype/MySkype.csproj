@@ -70,6 +70,12 @@
     <Compile Include="Frd_Dialog.Designer.cs">
       <DependentUpon>Frd_Dialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Frd_Files.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Frd_Files.Designer.cs">
+      <DependentUpon>Frd_Files.cs</DependentUpon>
+    </Compile>
     <Compile Include="Glb_Value.cs" />
     <Compile Include="My_MessageBox.cs">
       <SubType>Form</SubType>
@@ -85,6 +91,12 @@
     <Compile Include="Self_Dialog.Designer.cs">
       <DependentUpon>Self_Dialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Self_Files.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Self_Files.Designer.cs">
+      <DependentUpon>Self_Files.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -93,6 +105,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Frd_Dialog.resx">
       <DependentUpon>Frd_Dialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Frd_Files.resx">
+      <DependentUpon>Frd_Files.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My_MessageBox.resx">
       <DependentUpon>My_MessageBox.cs</DependentUpon>
@@ -109,6 +124,9 @@
     </Compile>
     <EmbeddedResource Include="Self_Dialog.resx">
       <DependentUpon>Self_Dialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Self_Files.resx">
+      <DependentUpon>Self_Files.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -155,6 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\night.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\file_send_use.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

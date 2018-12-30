@@ -21,3 +21,7 @@ C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Propert
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.csproj.GenerateResource.Cache
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Self_Dialog.resources
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Frd_Dialog.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Frd_Dialog.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Self_Dialog.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Self_Files.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Frd_Files.resources

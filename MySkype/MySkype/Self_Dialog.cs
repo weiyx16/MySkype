@@ -29,8 +29,7 @@ namespace MySkype
             time_label.Text = currenttime;
             Chat_label.Text = chat_text;
             Chat_label.Visible = true;
-            this.Height = 80;
-            Chat_label.Location = new Point(300-Chat_label.Width, 30);
+            Chat_label.Location = new Point(310-Chat_label.Width, 21);
             Chat_label.BringToFront();
             Sender.Text = Glb_Value.Account;
             picture.Visible = false;
@@ -54,7 +53,7 @@ namespace MySkype
             picture.Width = 40;
             picture.Height = 40;
             picture.Image = new Bitmap(img, 40, 40);
-            picture.Location = new Point(300-40, 30);
+            picture.Location = new Point(310-40, 21);
             picture.Visible = true;
             picture.BringToFront();
             Chat_label.Visible = false;

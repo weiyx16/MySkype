@@ -38,7 +38,7 @@
             // time_label
             // 
             this.time_label.AutoSize = true;
-            this.time_label.Location = new System.Drawing.Point(190, 15);
+            this.time_label.Location = new System.Drawing.Point(190, 6);
             this.time_label.Name = "time_label";
             this.time_label.Size = new System.Drawing.Size(35, 12);
             this.time_label.TabIndex = 0;
@@ -47,7 +47,7 @@
             // Chat_label
             // 
             this.Chat_label.AutoSize = true;
-            this.Chat_label.Location = new System.Drawing.Point(231, 30);
+            this.Chat_label.Location = new System.Drawing.Point(231, 21);
             this.Chat_label.Name = "Chat_label";
             this.Chat_label.Size = new System.Drawing.Size(47, 12);
             this.Chat_label.TabIndex = 1;
@@ -56,7 +56,7 @@
             // Sender
             // 
             this.Sender.AutoSize = true;
-            this.Sender.Location = new System.Drawing.Point(335, 30);
+            this.Sender.Location = new System.Drawing.Point(335, 21);
             this.Sender.Name = "Sender";
             this.Sender.Size = new System.Drawing.Size(65, 12);
             this.Sender.TabIndex = 2;
@@ -64,7 +64,7 @@
             // 
             // picture
             // 
-            this.picture.Location = new System.Drawing.Point(284, 30);
+            this.picture.Location = new System.Drawing.Point(284, 21);
             this.picture.Name = "picture";
             this.picture.Size = new System.Drawing.Size(40, 40);
             this.picture.TabIndex = 3;
@@ -75,12 +75,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Snow;
             this.Controls.Add(this.picture);
             this.Controls.Add(this.Sender);
             this.Controls.Add(this.Chat_label);
             this.Controls.Add(this.time_label);
             this.Name = "Self_Dialog";
-            this.Size = new System.Drawing.Size(414, 80);
+            this.Size = new System.Drawing.Size(408, 70);
             ((System.ComponentModel.ISupportInitialize)(this.picture)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
