@@ -74,10 +74,10 @@
             // Frd_name
             // 
             this.Frd_name.AutoSize = true;
-            this.Frd_name.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Frd_name.Location = new System.Drawing.Point(344, 25);
+            this.Frd_name.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Frd_name.Location = new System.Drawing.Point(367, 29);
             this.Frd_name.Name = "Frd_name";
-            this.Frd_name.Size = new System.Drawing.Size(109, 20);
+            this.Frd_name.Size = new System.Drawing.Size(88, 16);
             this.Frd_name.TabIndex = 2;
             this.Frd_name.Text = "2016011422";
             // 
@@ -115,10 +115,10 @@
             // 
             // Chat_flowLayout
             // 
-            this.Chat_flowLayout.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.Chat_flowLayout.Location = new System.Drawing.Point(201, 53);
+            this.Chat_flowLayout.AutoScroll = true;
+            this.Chat_flowLayout.Location = new System.Drawing.Point(196, 53);
             this.Chat_flowLayout.Name = "Chat_flowLayout";
-            this.Chat_flowLayout.Size = new System.Drawing.Size(414, 255);
+            this.Chat_flowLayout.Size = new System.Drawing.Size(420, 255);
             this.Chat_flowLayout.TabIndex = 8;
             // 
             // Welcome_img
@@ -195,6 +195,7 @@
             this.Chat_quit.TabIndex = 14;
             this.Chat_quit.Text = "Quit Current";
             this.Chat_quit.UseVisualStyleBackColor = true;
+            this.Chat_quit.Click += new System.EventHandler(this.Chat_quit_Click);
             // 
             // MainFrm
             // 

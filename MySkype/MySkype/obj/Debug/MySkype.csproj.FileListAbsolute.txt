@@ -9,3 +9,15 @@ C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.pdb
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.MainFrm.resources
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csprojResolveAssemblyReference.cache
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.My_MessageBox.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\bin\Debug\MySkype.exe.config
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.exe
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.pdb
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\bin\Debug\MySkype.exe
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\bin\Debug\MySkype.pdb
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.LOGIN.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.MainFrm.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.My_MessageBox.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Properties.Resources.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.csproj.GenerateResource.Cache
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Self_Dialog.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Frd_Dialog.resources

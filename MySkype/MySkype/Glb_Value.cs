@@ -17,5 +17,7 @@ namespace MySkype
         public static string Chat_Frd { get; set; }
 
         public static string Chat_Frd_IP { get; set; }
+
+        public static bool Chatting { get; set; }
     }
 }

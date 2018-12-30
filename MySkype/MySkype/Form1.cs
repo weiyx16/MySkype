@@ -152,7 +152,7 @@ namespace MySkype
             }
         }
 
-        public bool Port_Occupy(int cur_port)//检查我方端口是否被占用 (TODO) 貌似没啥用？得到后面登录了打开监听的线程了才有用
+        public bool Port_Occupy(int cur_port)//检查我方端口是否被占用，到后面登录了打开监听的线程了才有用
         {
             bool port_occ = false;
             IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
@@ -189,7 +189,7 @@ namespace MySkype
         }
 
         // Help change the IP and Port
-        // 这个函数还没写 changeIp的窗口
+        // 这个函数还没写 changeIp的窗口 TODO:
         private void IP_change_MouseClick(object sender, MouseEventArgs e)
         {
             Change_IP change_ip = new Change_IP();

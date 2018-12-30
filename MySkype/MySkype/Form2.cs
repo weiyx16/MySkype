@@ -29,6 +29,7 @@ namespace MySkype
         private Thread LstThd;//后台侦听线程
         private TcpListener LstTcp;//侦听来自TCP网络客户端的连接
         private TcpClient client;
+        private delegate void FlushClient(string FrdName, string received_words); //代理
         private byte[] LstBuffer = new byte[1024];//接收对方发送的信息
 
         public static IPAddress LocalIP { get; set; }//本机IP
@@ -40,9 +41,14 @@ namespace MySkype
         {
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
-            
+            Chat_flowLayout.FlowDirection = FlowDirection.LeftToRight;
+            Chat_flowLayout.AutoScroll = true;
+            Chat_flowLayout.VerticalScroll.Visible = true;
+            Chat_flowLayout.HorizontalScroll.Visible = false;
+
             Glb_Value.Chat_Frd = Glb_Value.Account; //假设当前聊天的即为自己
             // 欢迎信息
+            Frd_name.Text = Glb_Value.Chat_Frd;
             Info_account.Text = Glb_Value.Account;
             int CurHour = DateTime.Now.Hour;
             if (CurHour > 19)
@@ -75,7 +81,6 @@ namespace MySkype
 
         /*
          ------------ 开始后台线程监听别人发的消息 -------------
-         // TODO: ? what is the theory?????
              */
         private void Listen()
         {
@@ -111,34 +116,52 @@ namespace MySkype
                 bytes_length = Strm2Frd.Read(test_msg, 0, 1000);
             }
             catch { }
-            //接收到好友尝试连接之后先回复Test，有了第一次握手
-            byte[] msg = Encoding.Default.GetBytes("Test");
-            try
-            {
-                Strm2Frd.Write(msg, 0, msg.Length);
-            }
-            catch { }
-            //同时把之前收到的信息转化成字符串，提取对方的身份（学号）
+            //转化成字符串，提取对方的身份（学号）
             string FrdName = Encoding.Default.GetString(test_msg, 0, bytes_length);
-
-            //读取正式信息 先读取了前1000位，判断是普通文本还是文件（文件发送默认有编码头/**begin-file-transport**/）
-            bytes_length = 0;
-            try
-            {
-                bytes_length = Strm2Frd.Read(LstBuffer, 0, 1000);
+            //接收到好友尝试连接之后
+            //先看我现在的状态，是否正在聊天，如果聊天的话，是否又在和这个人聊天？
+            //先回复Hello，有了第一次握手
+            if (Glb_Value.Chatting && !(Glb_Value.Chat_Frd.CompareTo(FrdName) == 0))
+            {                
+                //我现在正在和别人聊天
+                byte[] msg = Encoding.Default.GetBytes("Sorry");
+                try
+                {
+                    Strm2Frd.Write(msg, 0, msg.Length);
+                }
+                catch { }
             }
-            catch { }
-            //查看接收信息头
-            string received_words = Encoding.Default.GetString(LstBuffer, 0, bytes_length);
-            if (received_words.StartsWith("/**begin-file-transport**/"))
-            {
-                //receive_file(FrdName, received_words, Stream2Friend);
-                //TODO:
-            }
-            else
-            {
-                //收到了普通文本
-                process_message(FrdName, received_words);//跨线程处理信息+回显
+            else{
+                // 我还没开始聊天or我之前就是和你正在聊天
+                Glb_Value.Chatting = true;
+                Glb_Value.Chat_Frd = FrdName;
+                Frd_name.Text = FrdName;
+                byte[] msg = Encoding.Default.GetBytes("Hello");
+                try
+                {
+                    Strm2Frd.Write(msg, 0, msg.Length);
+                }
+                catch { }
+                
+                //读取正式信息 先读取了前1000位，判断是普通文本还是文件（文件发送默认有编码头/**begin-file-transport**/）
+                bytes_length = 0;
+                try
+                {
+                    bytes_length = Strm2Frd.Read(LstBuffer, 0, 1000);
+                }
+                catch { }
+                //查看接收信息头
+                string received_words = Encoding.Default.GetString(LstBuffer, 0, bytes_length);
+                if (received_words.StartsWith("/**begin-file-transport**/"))
+                {
+                    //收到了文件
+                    receive_file(FrdName, received_words, Strm2Frd);                  
+                }
+                else
+                {
+                    //收到了普通文本
+                    process_message(FrdName, received_words);//跨线程处理信息+回显
+                }
             }
         }
 
@@ -147,14 +170,39 @@ namespace MySkype
         {
             //注意这里Acp_msg是由另一个监听的异步触发产生的线程所调用的，需要特殊的处理
             //那么怎么处理呢？
-            //有个问题，当我在和A聊天，然后B给我发消息了，怎么办
-            //TODO 这里先假设我就只和A聊天
-            //先获取对方的Ip地址
-            Glb_Value.Chat_Frd_IP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
-            Glb_Value.Chat_Frd = FrdName;
-            Frd_name.Text = FrdName;
-            //TODONOW
+            //约束只能同时和一个人聊天/传送
+            
+            //等待异步 处理
+            //调用方位于创建控件线程之外的线程里，所以对调用方进行invoke
+            if (this.Chat_flowLayout.InvokeRequired)
+            {
+                FlushClient FC = new FlushClient(process_message);
+                this.Invoke(FC, new object[] { FrdName, received_words }); //通过代理调用刷新方法
+            }
+            else
+            {
+                //更新我当前对话方的Ip地址，用户名以及界面上的信息
+                Glb_Value.Chat_Frd_IP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                Glb_Value.Chat_Frd = FrdName;       
+                Frd_name.Text = FrdName;
+                //要把这个线程的信息显示在主线程程序上
+                Frd_Dialog show_frds = new Frd_Dialog(received_words, FrdName);
+                Chat_flowLayout.Controls.Add(show_frds);
+                show_frds.Parent = Chat_flowLayout;
+                show_frds.Show();
+            }
         }
+
+        /*
+         -------------  收发文件处理 -------------
+             */
+        //TODONOW:
+
+        private void receive_file(string FrdName, string msg, NetworkStream Stream2Friend)
+        {
+
+        }
+
 
 
         /*
@@ -190,6 +238,7 @@ namespace MySkype
                             Frd_name.Text = Search_frd.Text;
                             Glb_Value.Chat_Frd = Search_frd.Text;
                             Glb_Value.Chat_Frd_IP = Frd_IP;
+                            Glb_Value.Chatting = true;
                         }
                     }
                 }
@@ -373,7 +422,7 @@ namespace MySkype
                         string Img_name = Glb_Value.Chat_Frd + messages[i].Substring(Img_head.Length);
                         try {
                             // 开一个新的文件线程
-                            // TODO做截图时用
+                            // TODO:做截图时用
                             Thread SendFile;
                         }
                         catch { } 
@@ -384,14 +433,15 @@ namespace MySkype
                         bool send_suc = Send_Text(messages[i]);
                         if (!send_suc)
                         {
-                            MessageBox.Show("Your friend logs out", "MissError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            break; // 出现连接失败、对方下线等各种情况下，就停止发送！
+                            MessageBox.Show("Your friend are not available", "MissError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            break; // 出现连接失败、对方下线等各种情况下，就停止发送，或者对方和别人聊天去了！
                         }
                         else
                         {
-                            //怎么显示在flowoutlayer上？
-                            //TODO
-                            MessageBox.Show(messages[i], "Have Sent!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            Self_Dialog show_mine = new Self_Dialog(messages[i]);
+                            this.Chat_flowLayout.Controls.Add(show_mine);
+                            show_mine.Parent = this.Chat_flowLayout;
+                            show_mine.Show();
                         }
                     }
                 }
@@ -420,7 +470,7 @@ namespace MySkype
                 if (client.Connected)
                 {
                     NetworkStream Strm2Frd = client.GetStream();
-                    // 约定发送方每次发送信息，先发送自身账号确保接收方正确返回Test作为ACK，再进行后续的发送
+                    // 约定发送方每次发送信息，先发送自身账号确保接收方正确返回Hello作为ACK，再进行后续的发送
                     byte[] testmsg = Encoding.Default.GetBytes(Glb_Value.Account);
                     Strm2Frd.Write(testmsg, 0, testmsg.Length);
 
@@ -438,8 +488,9 @@ namespace MySkype
                         return false;
                     }
                     string succ_flag = Encoding.Default.GetString(msg_get, 0, bytes_length);
-                    Regex r = new Regex(@"^Test");
-                    if (r.IsMatch(@succ_flag))
+                    Regex suc = new Regex(@"^Hello");
+                    Regex busy = new Regex(@"^Sorry");
+                    if (suc.IsMatch(@succ_flag))
                     {
                         byte[] Sendmsg = Encoding.Default.GetBytes(msg);
                         try
@@ -450,6 +501,12 @@ namespace MySkype
                         Strm2Frd.Close();
                         client.Close();
                         return true;
+                    }
+                    else if(busy.IsMatch(@succ_flag))
+                    {
+                        Strm2Frd.Close();
+                        client.Close();
+                        return false;
                     }
                     else
                     {
@@ -503,6 +560,18 @@ namespace MySkype
                 }
             }
             return messages;
+        }
+
+        private void Chat_quit_Click(object sender, EventArgs e)
+        {
+            DialogResult Dr = MessageBox.Show("Ready to Quit Current dialog?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            if (Dr == DialogResult.OK)
+            {
+                Glb_Value.Chatting = false;
+                Glb_Value.Chat_Frd = Glb_Value.Account;
+                Frd_name.Text = Glb_Value.Account;
+                this.Chat_flowLayout.Controls.Clear();
+            }
         }
     }
 }
