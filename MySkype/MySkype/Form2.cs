@@ -19,7 +19,6 @@ using System.Text.RegularExpressions;
 //截图时使用
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-//using _SCREEN_CAPTURE;
 
 namespace MySkype
 {
@@ -33,6 +32,8 @@ namespace MySkype
         public static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
         private static int WM_CLIPBOARDUPDATE = 0x031D;
         private bool screenshot = true;
+        private Point lefttop = Point.Empty;
+        private Point rightdown = Point.Empty;
 
         /* 监听过程需要使用的变量 */
         private Thread LstThd;//后台侦听线程
@@ -58,6 +59,13 @@ namespace MySkype
             Chat_flowLayout.HorizontalScroll.Visible = false;
 
             AddClipboardFormatListener(this.Handle); // 监听剪切板
+            //// 获取图标位置
+            //ScreenShots.Width = Screen.PrimaryScreen.Bounds.Width;
+            //ScreenShots.Height = Screen.PrimaryScreen.Bounds.Height;
+            //// 将截图点捕捉范围扩大到全图
+            //Point screencorner = PointToScreen(ScreenShots.Location);
+            //ScreenShots.Location = new Point(ScreenShots.Location.X - screencorner.X, ScreenShots.Location.Y - screencorner.Y);
+            //ScreenShots.SendToBack();
 
             Glb_Value.Chat_Frd = Glb_Value.Account; //假设当前聊天的即为自己
             Glb_Value.Chatting = false;
@@ -203,7 +211,6 @@ namespace MySkype
                 Chat_flowLayout.Controls.Add(show_frds);
                 show_frds.Parent = Chat_flowLayout;
                 show_frds.Show();
-                MessageBox.Show(received_words, "FileReceiveError", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -913,7 +920,7 @@ namespace MySkype
         private List<string> Seg_Img_Text(string Chat_Frd)
         {
             // 创建存储发送图片的文件夹
-            string savepath = ".\\" + Glb_Value.Account + "\\Deliver\\" + Chat_Frd;
+            string savepath = ".\\" + Glb_Value.Account + "\\Deliver";
             int filenum = 0;
             if (Directory.Exists(savepath)) { filenum = Directory.GetFiles(savepath).Length; }
             else
@@ -997,9 +1004,71 @@ namespace MySkype
              */
         private void Shots_Click(object sender, EventArgs e)
         {
-            screenshot = false;
-            FrmCapture frmC = new FrmCapture(); //TODO
-            frmC.Show();
+            DialogResult Dr = MessageBox.Show("Take a full screen shot!", "ScreenShot", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+            if (Dr == DialogResult.Yes)
+            {
+                Clipboard.Clear();
+                screenshot = false;
+                Bitmap img = new Bitmap(this.Width, this.Height);
+                Graphics G = Graphics.FromImage(img);
+                G.CopyFromScreen(this.Left, this.Top, 0, 0, new Size(this.Width, this.Height));
+
+                // resize the image so it can be put in the richtextbox
+                Bitmap img_resize = new Bitmap(this.Width / 3, this.Width / 3);
+                Graphics G_resize = Graphics.FromImage(img_resize);
+                G_resize.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                G_resize.DrawImage(img, new Rectangle(0, 0, this.Width / 3, this.Width / 3), new Rectangle(0, 0, this.Width, this.Width), GraphicsUnit.Pixel);
+
+                G_resize.Dispose();
+                G.Dispose();
+                Clipboard.SetImage(img_resize);
+
+                //while(lefttop == Point.Empty || rightdown == Point.Empty) { }
+
+                //MessageBox.Show(lefttop.ToString(), "ScreenShot", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                //MessageBox.Show(rightdown.ToString(), "ScreenShot", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+
+                //int width = Math.Abs(lefttop.X - rightdown.X);
+                //int height = Math.Abs(lefttop.Y - rightdown.Y);
+
+                //Bitmap img = new Bitmap(width, height);
+                //Graphics G = Graphics.FromImage(img);
+                //G.CopyFromScreen(lefttop.X, lefttop.Y, 0, 0, new Size(Width, Height));
+
+                //// resize the image so it can be put in the richtextbox
+                //Bitmap img_resize = new Bitmap(width / 3, height / 3);
+                //Graphics G_resize = Graphics.FromImage(img_resize);
+                //G_resize.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                //G_resize.DrawImage(img, new Rectangle(0, 0, width / 3, height / 3), new Rectangle(0, 0, width, height), GraphicsUnit.Pixel);
+
+                //G_resize.Dispose();
+                //G.Dispose();
+                //Clipboard.SetImage(img_resize);
+            }
+            else if(Dr == DialogResult.No)
+            {
+                screenshot = false;
+            }
+            else { }
+        }
+
+        // 获取鼠标点击位置以确定截图区域
+        // 目前还不行 TODO:
+
+        private void Chat_flowLayout_MouseDown(object sender, MouseEventArgs e)
+        {
+            //if (!screenshot && e.Button == MouseButtons.Left)
+            //{
+            //    lefttop = Control.MousePosition;
+            //}
+        }
+
+        private void Chat_flowLayout_MouseUp(object sender, MouseEventArgs e)
+        {
+            //if (!screenshot && e.Button == MouseButtons.Left)
+            //{
+            //    rightdown = Control.MousePosition;
+            //}
         }
 
         //监视剪切板，一旦有信息就复制到 rich text box 中
@@ -1011,6 +1080,7 @@ namespace MySkype
                 {
                     Chat_cmd.Paste();
                     screenshot = true;
+                    Clipboard.Clear();
                 }
             }
             else
@@ -1019,22 +1089,25 @@ namespace MySkype
             }
         }
 
-        /*
-         ----------- 一些辅助效果 ---------------
-             */
 
-        // 点击退出当前聊天的时候，应该把这次聊天的记录存下来？TODO
+        // 点击退出当前聊天的时候，应该把这次聊天的记录存下来？
         private void Chat_quit_Click(object sender, EventArgs e)
         {
+            // TODO
             DialogResult Dr = MessageBox.Show("Ready to Quit Current dialog?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (Dr == DialogResult.OK)
             {
                 Glb_Value.Chatting = false;
                 Glb_Value.Chat_Frd = Glb_Value.Account;
                 Frd_name.Text = Glb_Value.Account;
+                this.Chat_cmd.Clear();
                 this.Chat_flowLayout.Controls.Clear();
             }
         }
+
+        /*
+         ----------- 一些辅助效果 ---------------
+             */
 
         //划过文件按钮有显示
         private void Files_MouseMove(object sender, MouseEventArgs e)
@@ -1050,6 +1123,32 @@ namespace MySkype
             MyMessageBox.Visible = false;
         }
 
+        //聊天框变色的小效果
+        private void Chat_cmd_MouseMove(object sender, MouseEventArgs e)
+        {
+            Chat_cmd.BackColor = Color.White;
+            Chat_bg.BackColor = Color.White;
+            Emoji.BackColor = Color.White;
+            History.BackColor = Color.White;
+            Files.BackColor = Color.White;
+            Shots.BackColor = Color.White;
+        }
+
+        private void Chat_cmd_MouseLeave(object sender, EventArgs e)
+        {
+            Chat_cmd.BackColor = Color.GhostWhite;
+            Chat_bg.BackColor = Color.GhostWhite;
+            Emoji.BackColor = Color.GhostWhite;
+            History.BackColor = Color.GhostWhite;
+            Files.BackColor = Color.GhostWhite;
+            Shots.BackColor = Color.GhostWhite;
+        }
+
+        // 让滑动滚轮有消息来时始终在最下方
+        private void Chat_flowLayout_ControlAdded(object sender, ControlEventArgs e)
+        {
+            Chat_flowLayout.AutoScrollPosition = new Point(0, Chat_flowLayout.Height - Chat_flowLayout.AutoScrollPosition.Y);
+        }
 
     }
 }

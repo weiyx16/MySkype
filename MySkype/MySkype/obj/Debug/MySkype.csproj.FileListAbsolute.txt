@@ -25,3 +25,5 @@ C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Frd_Dialog.reso
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Self_Dialog.resources
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Self_Files.resources
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Frd_Files.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Frd_Files.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Self_Files.resources

@@ -36,6 +36,9 @@
             this.Chat_cmd = new System.Windows.Forms.RichTextBox();
             this.Chat_send = new System.Windows.Forms.Button();
             this.Chat_flowLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.Chat_quit = new System.Windows.Forms.Button();
+            this.Logout_label = new System.Windows.Forms.Label();
+            this.Frd_flowLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.Welcome_img = new System.Windows.Forms.PictureBox();
             this.History = new System.Windows.Forms.PictureBox();
             this.Shots = new System.Windows.Forms.PictureBox();
@@ -43,12 +46,9 @@
             this.Emoji = new System.Windows.Forms.PictureBox();
             this.Exit_button = new System.Windows.Forms.PictureBox();
             this.Search_button = new System.Windows.Forms.PictureBox();
-            this.Chat_quit = new System.Windows.Forms.Button();
-            this.Logout_label = new System.Windows.Forms.Label();
             this.TopLeft = new System.Windows.Forms.PictureBox();
-            this.Frd_flowLayout = new System.Windows.Forms.FlowLayoutPanel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.Chat_bg = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.Welcome_img)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.History)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Shots)).BeginInit();
@@ -57,8 +57,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.Exit_button)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Search_button)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TopLeft)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Chat_bg)).BeginInit();
             this.SuspendLayout();
             // 
             // Info
@@ -112,6 +112,8 @@
             this.Chat_cmd.Size = new System.Drawing.Size(433, 109);
             this.Chat_cmd.TabIndex = 6;
             this.Chat_cmd.Text = "";
+            this.Chat_cmd.MouseLeave += new System.EventHandler(this.Chat_cmd_MouseLeave);
+            this.Chat_cmd.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Chat_cmd_MouseMove);
             // 
             // Chat_send
             // 
@@ -135,6 +137,39 @@
             this.Chat_flowLayout.Name = "Chat_flowLayout";
             this.Chat_flowLayout.Size = new System.Drawing.Size(434, 255);
             this.Chat_flowLayout.TabIndex = 8;
+            this.Chat_flowLayout.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.Chat_flowLayout_ControlAdded);
+            this.Chat_flowLayout.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Chat_flowLayout_MouseDown);
+            this.Chat_flowLayout.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Chat_flowLayout_MouseUp);
+            // 
+            // Chat_quit
+            // 
+            this.Chat_quit.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.Chat_quit.Location = new System.Drawing.Point(201, 419);
+            this.Chat_quit.Name = "Chat_quit";
+            this.Chat_quit.Size = new System.Drawing.Size(95, 22);
+            this.Chat_quit.TabIndex = 14;
+            this.Chat_quit.Text = "Quit Current";
+            this.Chat_quit.UseVisualStyleBackColor = false;
+            this.Chat_quit.Click += new System.EventHandler(this.Chat_quit_Click);
+            // 
+            // Logout_label
+            // 
+            this.Logout_label.AutoSize = true;
+            this.Logout_label.BackColor = System.Drawing.Color.Snow;
+            this.Logout_label.Location = new System.Drawing.Point(540, 6);
+            this.Logout_label.Name = "Logout_label";
+            this.Logout_label.Size = new System.Drawing.Size(53, 12);
+            this.Logout_label.TabIndex = 15;
+            this.Logout_label.Text = "Log Out:";
+            // 
+            // Frd_flowLayout
+            // 
+            this.Frd_flowLayout.BackColor = System.Drawing.SystemColors.Control;
+            this.Frd_flowLayout.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Frd_flowLayout.Location = new System.Drawing.Point(0, 89);
+            this.Frd_flowLayout.Name = "Frd_flowLayout";
+            this.Frd_flowLayout.Size = new System.Drawing.Size(189, 358);
+            this.Frd_flowLayout.TabIndex = 17;
             // 
             // Welcome_img
             // 
@@ -212,27 +247,6 @@
             this.Search_button.TabStop = false;
             this.Search_button.Click += new System.EventHandler(this.Search_button_Click);
             // 
-            // Chat_quit
-            // 
-            this.Chat_quit.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.Chat_quit.Location = new System.Drawing.Point(201, 419);
-            this.Chat_quit.Name = "Chat_quit";
-            this.Chat_quit.Size = new System.Drawing.Size(95, 22);
-            this.Chat_quit.TabIndex = 14;
-            this.Chat_quit.Text = "Quit Current";
-            this.Chat_quit.UseVisualStyleBackColor = false;
-            this.Chat_quit.Click += new System.EventHandler(this.Chat_quit_Click);
-            // 
-            // Logout_label
-            // 
-            this.Logout_label.AutoSize = true;
-            this.Logout_label.BackColor = System.Drawing.Color.Snow;
-            this.Logout_label.Location = new System.Drawing.Point(540, 6);
-            this.Logout_label.Name = "Logout_label";
-            this.Logout_label.Size = new System.Drawing.Size(53, 12);
-            this.Logout_label.TabIndex = 15;
-            this.Logout_label.Text = "Log Out:";
-            // 
             // TopLeft
             // 
             this.TopLeft.BackColor = System.Drawing.SystemColors.Control;
@@ -243,24 +257,6 @@
             this.TopLeft.TabIndex = 16;
             this.TopLeft.TabStop = false;
             // 
-            // Frd_flowLayout
-            // 
-            this.Frd_flowLayout.BackColor = System.Drawing.SystemColors.Control;
-            this.Frd_flowLayout.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Frd_flowLayout.Location = new System.Drawing.Point(0, 89);
-            this.Frd_flowLayout.Name = "Frd_flowLayout";
-            this.Frd_flowLayout.Size = new System.Drawing.Size(189, 358);
-            this.Frd_flowLayout.TabIndex = 17;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BackColor = System.Drawing.Color.White;
-            this.pictureBox1.Location = new System.Drawing.Point(189, 308);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(434, 137);
-            this.pictureBox1.TabIndex = 18;
-            this.pictureBox1.TabStop = false;
-            // 
             // pictureBox2
             // 
             this.pictureBox2.BackColor = System.Drawing.Color.Snow;
@@ -270,6 +266,15 @@
             this.pictureBox2.Size = new System.Drawing.Size(434, 54);
             this.pictureBox2.TabIndex = 19;
             this.pictureBox2.TabStop = false;
+            // 
+            // Chat_bg
+            // 
+            this.Chat_bg.BackColor = System.Drawing.Color.White;
+            this.Chat_bg.Location = new System.Drawing.Point(189, 308);
+            this.Chat_bg.Name = "Chat_bg";
+            this.Chat_bg.Size = new System.Drawing.Size(434, 137);
+            this.Chat_bg.TabIndex = 18;
+            this.Chat_bg.TabStop = false;
             // 
             // MainFrm
             // 
@@ -295,7 +300,7 @@
             this.Controls.Add(this.TopLeft);
             this.Controls.Add(this.Frd_flowLayout);
             this.Controls.Add(this.pictureBox2);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.Chat_bg);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainFrm";
             this.Text = "MainFrm";
@@ -307,8 +312,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.Exit_button)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Search_button)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TopLeft)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Chat_bg)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -334,7 +339,7 @@
         private System.Windows.Forms.Label Logout_label;
         private System.Windows.Forms.PictureBox TopLeft;
         private System.Windows.Forms.FlowLayoutPanel Frd_flowLayout;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox Chat_bg;
         private System.Windows.Forms.PictureBox pictureBox2;
     }
 }
