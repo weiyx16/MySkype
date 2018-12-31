@@ -25,6 +25,15 @@ namespace MySkype
 {
     public partial class MainFrm : Form
     {
+        //使用 AddClipboardFormatListener 的API函数监视剪贴板
+        [DllImport("user32.dll")]
+        public static extern bool AddClipboardFormatListener(IntPtr hwnd);
+        //使用 RemoveClipboardFormatListener 的API函数监视剪贴板
+        [DllImport("user32.dll")]
+        public static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
+        private static int WM_CLIPBOARDUPDATE = 0x031D;
+        private bool screenshot = true;
+
         /* 监听过程需要使用的变量 */
         private Thread LstThd;//后台侦听线程
         private TcpListener LstTcp;//侦听来自TCP网络客户端的连接
@@ -33,8 +42,8 @@ namespace MySkype
         private byte[] LstBuffer = new byte[1024];//接收对方发送的信息
         private delegate void File_Send_Show(string FileName, int i, int FileLength, int last_show); //文件传输中的代理
         private delegate void File_Receive_Show(string FileName, int i, int FileLength, int last_show); //文件传输中的代理
+        
 
-        public static IPAddress LocalIP { get; set; }//本机IP
         //private Myfriends newfriend;//新加好友
         //public List<Myfriends> myfriends;//保存好友信息
         My_MessageBox MyMessageBox = new My_MessageBox();
@@ -47,6 +56,8 @@ namespace MySkype
             Chat_flowLayout.AutoScroll = true;
             Chat_flowLayout.VerticalScroll.Visible = true;
             Chat_flowLayout.HorizontalScroll.Visible = false;
+
+            AddClipboardFormatListener(this.Handle); // 监听剪切板
 
             Glb_Value.Chat_Frd = Glb_Value.Account; //假设当前聊天的即为自己
             Glb_Value.Chatting = false;
@@ -684,11 +695,13 @@ namespace MySkype
             */
         private void Exit_button_Click(object sender, EventArgs e)
         {
+            RemoveClipboardFormatListener(this.Handle);//取消对剪贴板的监视
+
             DialogResult Dr = MessageBox.Show("Ready to logout?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (Dr == DialogResult.OK)
             {
                 TcpClient client = new TcpClient();
-                // try to connet the client and check if we lose it
+                // try to connect the client and check if we lose it
                 try
                 {
                     client.Connect(Glb_Value.ServerIp, Glb_Value.ServerPort);
@@ -775,12 +788,14 @@ namespace MySkype
                     // 如果找到照片数据流，以文件形式处理
                     if (messages[i].StartsWith(Img_head))
                     {
-                        //去掉之前检索图片的头，加上目标用户名的头，和文件发送相同
+                        //去掉之前检索图片的头，加上目标用户名的头，和文件发送相同 （目标用户名+路径）
                         string Img_name = Glb_Value.Chat_Frd + messages[i].Substring(Img_head.Length);
                         try {
                             // 开一个新的文件线程
-                            // TODO:做截图时用
-                            Thread SendFile;
+                            // 发送截图时用
+                            // TODO:要不要改显示？
+                            Thread SendFile = new Thread(new ParameterizedThreadStart(Send_file));
+                            SendFile.Start((object)Img_name);
                         }
                         catch { } 
                     }
@@ -872,7 +887,7 @@ namespace MySkype
                         return false;
                     }
                 }
-                // Tcp建立失败
+                // Tcp 建立失败
                 return false;
             }
         }
@@ -894,19 +909,77 @@ namespace MySkype
             MyMessageBox.Visible = false;
         }
 
-        // 使用发送截图时直接复制到rich text box中，可能出现文字图片混合情况，分开发送
+        // 使用发送截图时直接复制到rich text box 中，可能出现文字图片混合情况，分开发送
         private List<string> Seg_Img_Text(string Chat_Frd)
         {
-            // 创建存储发送图片的文件夹 TODO不知道有什么用
-            string spath = ".\\" + Glb_Value.Account + "\\Send" + "\\To" + Chat_Frd;
+            // 创建存储发送图片的文件夹
+            string savepath = ".\\" + Glb_Value.Account + "\\Deliver\\" + Chat_Frd;
+            int filenum = 0;
+            if (Directory.Exists(savepath)) { filenum = Directory.GetFiles(savepath).Length; }
+            else
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(savepath);
+                directoryInfo.Create();
+            }
+
             // 创建信息列表
             List<string> messages = new List<string>();
             List<string> pictures = new List<string>();
-            // 先判断是否有图片
+            // 先判断文本框中是否有图片
             if (Chat_cmd.Rtf.IndexOf(@"{\pict\") > -1)
             {
-                //TODO做截图时用
+                //截图时用
                 //注意在图片数据头上加上head：/**Is-a-Img**/ 便于发送时区别发送
+                int word_index = 0;
+                for (int i=0; i < Chat_cmd.TextLength; i++)
+                {
+                    //https://blog.csdn.net/huawenzi750/article/details/6309881
+                    Chat_cmd.Select(i, 1); // 选中每一个字节
+                    RichTextBoxSelectionTypes RTB = Chat_cmd.SelectionType;
+                    if (RTB == RichTextBoxSelectionTypes.Object) // 表示选中图像
+                    {
+                        //先将这个照片放到剪切板上，然后存下来
+                        try
+                        {
+                            Clipboard.Clear();
+                        }
+                        catch { }
+                        Chat_cmd.Copy();
+                        Image img = Clipboard.GetImage();
+
+                        //检索文字 from word_index to i
+                        string _msg = Chat_cmd.Text.Substring(word_index, i - word_index);
+                        word_index = i + 1;
+                        if (_msg.Length > 0)
+                        {
+                            messages.Add(_msg);
+                        }
+
+                        //把图片存下来
+                        //把图片路径放到list里
+                        if (img != null)
+                        {
+                            string savename = "Img_" + filenum.ToString() + ".png";
+                            img.Save(savepath + "\\" + savename, ImageFormat.Png);
+                            pictures.Add("/**Is-a-Img**/" + savepath + "\\" + savename);
+                        }
+                        try
+                        {
+                            Clipboard.Clear();
+                        }
+                        catch { }
+                    }
+                }
+                string msg_ = Chat_cmd.Text.Substring(word_index);
+                if (msg_.Length > 0)
+                {
+                    messages.Add(msg_);
+                }
+                //把图片路径添加到后边
+                for (int i=0; i < pictures.Count; i++)
+                {
+                    messages.Add(pictures[i]);
+                }
             }
             else
             {
@@ -919,6 +992,38 @@ namespace MySkype
             return messages;
         }
 
+        /*
+            -------------- 剪切板与截图功能 --------------
+             */
+        private void Shots_Click(object sender, EventArgs e)
+        {
+            screenshot = false;
+            FrmCapture frmC = new FrmCapture(); //TODO
+            frmC.Show();
+        }
+
+        //监视剪切板，一旦有信息就复制到 rich text box 中
+        protected override void DefWndProc(ref Message m)
+        {
+            if (m.Msg == WM_CLIPBOARDUPDATE)
+            {
+                if (screenshot == false)
+                {
+                    Chat_cmd.Paste();
+                    screenshot = true;
+                }
+            }
+            else
+            {
+                base.DefWndProc(ref m);
+            }
+        }
+
+        /*
+         ----------- 一些辅助效果 ---------------
+             */
+
+        // 点击退出当前聊天的时候，应该把这次聊天的记录存下来？TODO
         private void Chat_quit_Click(object sender, EventArgs e)
         {
             DialogResult Dr = MessageBox.Show("Ready to Quit Current dialog?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
@@ -944,5 +1049,7 @@ namespace MySkype
         {
             MyMessageBox.Visible = false;
         }
+
+
     }
 }

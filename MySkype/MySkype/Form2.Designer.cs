@@ -165,6 +165,7 @@
             this.Shots.Size = new System.Drawing.Size(22, 20);
             this.Shots.TabIndex = 11;
             this.Shots.TabStop = false;
+            this.Shots.Click += new System.EventHandler(this.Shots_Click);
             // 
             // Files
             // 
