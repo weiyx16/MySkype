@@ -201,6 +201,8 @@
             this.Shots.TabIndex = 11;
             this.Shots.TabStop = false;
             this.Shots.Click += new System.EventHandler(this.Shots_Click);
+            this.Shots.MouseLeave += new System.EventHandler(this.Shots_MouseLeave);
+            this.Shots.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Shots_MouseMove);
             // 
             // Files
             // 
@@ -224,6 +226,9 @@
             this.Emoji.Size = new System.Drawing.Size(22, 20);
             this.Emoji.TabIndex = 9;
             this.Emoji.TabStop = false;
+            this.Emoji.Click += new System.EventHandler(this.Emoji_Click);
+            this.Emoji.MouseLeave += new System.EventHandler(this.Emoji_MouseLeave);
+            this.Emoji.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Emoji_MouseMove);
             // 
             // Exit_button
             // 

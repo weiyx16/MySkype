@@ -47,7 +47,8 @@ namespace MySkype
 
         //private Myfriends newfriend;//新加好友
         //public List<Myfriends> myfriends;//保存好友信息
-        My_MessageBox MyMessageBox = new My_MessageBox();
+        private My_MessageBox MyMessageBox = new My_MessageBox();
+        private EmojiBox emojibox = new EmojiBox();
 
         public MainFrm()
         {
@@ -99,6 +100,10 @@ namespace MySkype
             LstThd.IsBackground = true;
             LstThd.Start();
 
+            // Emoji
+            emojibox.Location = new Point(this.Location.X + 220, this.Location.Y + 250);
+            emojibox.Hide();
+            emojibox.send_emoji += new Send_Emoji(send_emoji);//增加委托触发
         }
 
         /*
@@ -619,7 +624,7 @@ namespace MySkype
             }
         }
 
-        // 清空提示信息
+        // 清空搜索栏的提示信息
         private void Search_frd_Click(object sender, EventArgs e)
         {
             if (Search_frd.Text.CompareTo("Search Friends") == 0)
@@ -1004,23 +1009,24 @@ namespace MySkype
              */
         private void Shots_Click(object sender, EventArgs e)
         {
-            DialogResult Dr = MessageBox.Show("Take a full screen shot!", "ScreenShot", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+            Bitmap img = new Bitmap(this.Width, this.Height);
+            Graphics G = Graphics.FromImage(img);
+            G.CopyFromScreen(this.Left, this.Top, 0, 0, new Size(this.Width, this.Height));
+
+            // resize the image so it can be put in the richtextbox
+            Bitmap img_resize = new Bitmap(this.Width / 3, this.Width / 3);
+            Graphics G_resize = Graphics.FromImage(img_resize);
+            G_resize.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            G_resize.DrawImage(img, new Rectangle(0, 0, this.Width / 3, this.Width / 3), new Rectangle(0, 0, this.Width, this.Width), GraphicsUnit.Pixel);
+
+            G_resize.Dispose();
+            G.Dispose();
+
+            DialogResult Dr = MessageBox.Show("Take a full screen shot!(or choose NO to use self-tools)", "ScreenShot", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
             if (Dr == DialogResult.Yes)
             {
                 Clipboard.Clear();
                 screenshot = false;
-                Bitmap img = new Bitmap(this.Width, this.Height);
-                Graphics G = Graphics.FromImage(img);
-                G.CopyFromScreen(this.Left, this.Top, 0, 0, new Size(this.Width, this.Height));
-
-                // resize the image so it can be put in the richtextbox
-                Bitmap img_resize = new Bitmap(this.Width / 3, this.Width / 3);
-                Graphics G_resize = Graphics.FromImage(img_resize);
-                G_resize.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                G_resize.DrawImage(img, new Rectangle(0, 0, this.Width / 3, this.Width / 3), new Rectangle(0, 0, this.Width, this.Width), GraphicsUnit.Pixel);
-
-                G_resize.Dispose();
-                G.Dispose();
                 Clipboard.SetImage(img_resize);
 
                 //while(lefttop == Point.Empty || rightdown == Point.Empty) { }
@@ -1089,6 +1095,44 @@ namespace MySkype
             }
         }
 
+        /*
+         ----------------- Emoji Send --------------
+             */
+        private void Emoji_Click(object sender, EventArgs e)
+        {
+            if (Glb_Value.Chat_Frd == Glb_Value.Account)
+            {
+                MessageBox.Show("Why send emoji to yourself?", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                emojibox.Location = new Point(this.Location.X + 220, this.Location.Y + 200);
+                emojibox.Show();
+            }
+        }
+
+        // 具体发送表情的函数
+        // TODO
+        private void send_emoji(int number){
+            emojibox.Hide();
+            number += 1; // 在存储的时候是按从1开始命名的
+
+            string emojipath = "..\\..\\..\\emoji\\" + "emoji_" + number.ToString() + ".gif";
+            if (File.Exists(emojipath)) { }
+            else
+            {
+                // Emoji 存储路径出错
+                MessageBox.Show("Check the store location of emoji", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            Self_Dialog show_mine = new Self_Dialog(true, emojipath);
+            this.Chat_flowLayout.Controls.Add(show_mine);
+            show_mine.Parent = this.Chat_flowLayout;
+            show_mine.Show();
+
+
+            //主要要让对方知道这是一个emoji要用对应的方式显示
+        }
 
         // 点击退出当前聊天的时候，应该把这次聊天的记录存下来？
         private void Chat_quit_Click(object sender, EventArgs e)
@@ -1149,6 +1193,35 @@ namespace MySkype
         {
             Chat_flowLayout.AutoScrollPosition = new Point(0, Chat_flowLayout.Height - Chat_flowLayout.AutoScrollPosition.Y);
         }
+
+        //划过截图有显示
+        private void Shots_MouseMove(object sender, MouseEventArgs e)
+        {
+            MyMessageBox.set_message("Screen Shots here!");
+            Point pt = Control.MousePosition;
+            MyMessageBox.set_position(pt.X, pt.Y + 10);
+            MyMessageBox.Show();
+        }
+        
+        private void Shots_MouseLeave(object sender, EventArgs e)
+        {
+            MyMessageBox.Visible = false;
+        }
+        
+        //划过Emoji有显示
+        private void Emoji_MouseMove(object sender, MouseEventArgs e)
+        {
+            MyMessageBox.set_message("Choose your Emoji!");
+            Point pt = Control.MousePosition;
+            MyMessageBox.set_position(pt.X, pt.Y + 10);
+            MyMessageBox.Show();
+        }
+
+        private void Emoji_MouseLeave(object sender, EventArgs e)
+        {
+            MyMessageBox.Visible = false;
+        }
+
 
     }
 }

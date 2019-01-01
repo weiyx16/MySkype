@@ -38,8 +38,9 @@ namespace MySkype
             this.picture.Visible = false;
         }
 
-        public Frd_Dialog(Image img, string Frd_name)
+        public Frd_Dialog(bool emojiflag, string emojipath, string Frd_name)
         {
+            InitializeComponent();
             // 如果发送的是表情
             // 注意截图图片是当文件处理的
             isEmoji = true;
@@ -56,7 +57,9 @@ namespace MySkype
             this.time_label.BringToFront();
             this.picture.Width = 40;
             this.picture.Height = 40;
-            this.picture.Image = new Bitmap(img, 40, 40);
+            Size emojisize = new Size(40, 40);
+            Bitmap emoji = new Bitmap(emojipath);
+            this.picture.Image = new Bitmap(emoji, emojisize); // resize
             this.picture.Location = new Point(90, 21);
             this.picture.Visible = true;
             this.picture.BringToFront();

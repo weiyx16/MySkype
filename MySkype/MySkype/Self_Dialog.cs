@@ -29,14 +29,16 @@ namespace MySkype
             time_label.Text = currenttime;
             Chat_label.Text = chat_text;
             Chat_label.Visible = true;
-            Chat_label.Location = new Point(310-Chat_label.Width, 21);
+            Chat_label.Location = new Point(320-Chat_label.Width, 21);
             Chat_label.BringToFront();
             Sender.Text = Glb_Value.Account;
             picture.Visible = false;
         }
 
-        public Self_Dialog(Image img)
+        //TODO
+        public Self_Dialog(bool emojiflag, string emojipath)
         {
+            InitializeComponent();
             // 如果发送的是表情
             // 注意截图图片是当文件处理的
             isEmoji = true;
@@ -52,12 +54,13 @@ namespace MySkype
             time_label.Text = currenttime;
             picture.Width = 40;
             picture.Height = 40;
-            picture.Image = new Bitmap(img, 40, 40);
-            picture.Location = new Point(310-40, 21);
+            Size emojisize = new Size(40, 40);
+            Bitmap emoji = new Bitmap(emojipath);
+            picture.Image = new Bitmap(emoji, emojisize); // resize
+            picture.Location = new Point(320-40, 21);
             picture.Visible = true;
             picture.BringToFront();
             Chat_label.Visible = false;
-            Sender.Text = Glb_Value.Account;
         }
     }
 }

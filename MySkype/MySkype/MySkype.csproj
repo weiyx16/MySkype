@@ -52,6 +52,12 @@
     <Compile Include="Change_IP.Designer.cs">
       <DependentUpon>Change_IP.cs</DependentUpon>
     </Compile>
+    <Compile Include="EmojiBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EmojiBox.Designer.cs">
+      <DependentUpon>EmojiBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +103,9 @@
     <Compile Include="Self_Files.Designer.cs">
       <DependentUpon>Self_Files.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="EmojiBox.resx">
+      <DependentUpon>EmojiBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -179,6 +188,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\screenshot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\emoji_11.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\emoji_2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\emoji_3.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\emoji_4.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
