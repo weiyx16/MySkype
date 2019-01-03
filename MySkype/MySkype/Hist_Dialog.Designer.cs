@@ -55,7 +55,7 @@
             // time_label
             // 
             this.time_label.AutoSize = true;
-            this.time_label.Location = new System.Drawing.Point(135, 26);
+            this.time_label.Location = new System.Drawing.Point(128, 26);
             this.time_label.Name = "time_label";
             this.time_label.Size = new System.Drawing.Size(11, 12);
             this.time_label.TabIndex = 2;

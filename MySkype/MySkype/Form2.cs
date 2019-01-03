@@ -237,6 +237,8 @@ namespace MySkype
             }
             else
             {
+                string text_head = "/**Text**/";
+                received_words = received_words.Substring(text_head.Length);
                 //更新我当前对话方的Ip地址，用户名以及界面上的信息
                 Glb_Value.Chat_Frd_IP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
                 Glb_Value.Chat_Frd = FrdName;       
@@ -880,6 +882,7 @@ namespace MySkype
                 List<string> messages = Seg_Img_Text(Glb_Value.Chat_Frd);
                 Chat_cmd.Clear();
                 string Img_head = "/**Is-a-Img**/"; // 注意这个要和后面进行图片文字分割时统一
+                string Text_head = "/**Text**/";
                 for (int i = 0; i < messages.Count; i++)
                 {
                     // 如果找到照片数据流，以文件形式处理
@@ -899,7 +902,7 @@ namespace MySkype
                     // 普通文本传递
                     else
                     {
-                        bool send_suc = Send_Text(messages[i]);
+                        bool send_suc = Send_Text(Text_head+messages[i]);
                         if (!send_suc)
                         {
                             MessageBox.Show("Your friend are not available", "MissError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -964,7 +967,7 @@ namespace MySkype
                         byte[] Sendmsg = Encoding.Default.GetBytes(msg);
                         try
                         {
-                            Strm2Frd.Write(Sendmsg, 0, msg.Length);
+                            Strm2Frd.Write(Sendmsg, 0, Sendmsg.Length);
                         }
                         catch { }
                         Strm2Frd.Close();

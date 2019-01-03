@@ -30,3 +30,7 @@ C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.EmojiBox.resour
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csprojResolveAssemblyReference.cache
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.historybox.resources
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Hist_Dialog.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Change_IP.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.EmojiBox.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.historybox.resources
+C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Hist_Dialog.resources
