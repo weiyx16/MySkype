@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Change_IP));
             this.Port_label = new System.Windows.Forms.Label();
             this.IP_label = new System.Windows.Forms.Label();
             this.Port_in = new System.Windows.Forms.TextBox();
@@ -89,6 +90,7 @@
             this.Controls.Add(this.IP_label);
             this.Controls.Add(this.Port_in);
             this.Controls.Add(this.Ip_in);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Change_IP";
             this.Text = "Change_IP";
             this.ResumeLayout(false);

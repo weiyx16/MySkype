@@ -678,9 +678,10 @@ namespace MySkype
                     }
                     else
                     {
-                        DialogResult Dr = MessageBox.Show("This friend is online, chat now?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);                 
+                        DialogResult Dr = MessageBox.Show("This friend is online, Chat now?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);                 
                         if (Dr == DialogResult.OK)
                         {
+                            Chat_flowLayout.Controls.Clear();
                             // 可以开始聊天
                             Frd_name.Text = Search_frd.Text;
                             Glb_Value.Chat_Frd = Search_frd.Text;

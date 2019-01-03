@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(historybox));
             this.history = new System.Windows.Forms.RichTextBox();
             this.info = new System.Windows.Forms.Label();
             this.quit = new System.Windows.Forms.Button();
@@ -69,6 +70,7 @@
             this.Controls.Add(this.quit);
             this.Controls.Add(this.info);
             this.Controls.Add(this.history);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "historybox";
             this.Text = "historybox";
             this.ResumeLayout(false);

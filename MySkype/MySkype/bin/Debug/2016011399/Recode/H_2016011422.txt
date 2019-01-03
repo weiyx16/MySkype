@@ -26,3 +26,44 @@ get!
 [time]19:49  2016011399: [content]
 终于成功了宝宝
 哭了
+2019-01-03
+[time]20:25 2016011422: [content]
+yeah！展示一下主界面吧！
+[time]20:25  2016011399: [content]
+好的
+[time]20:25  2016011399: [content]
+来传个文件
+[time]20:26 2016011399: [files]
+3D Shape From Unstructured 2D Image Collections.pdf
+[time]20:26 2016011422: [content]
+发个表情
+
+[time]20:26 2016011422: [emoji]
+Deliver a Emoji
+[time]20:26 2016011399: [emoji]
+[time]20:28 2016011422: [content]
+test
+2019-01-03
+2019-01-03
+[time]22:46  2016011399: [content]
+Chat here！
+[time]22:47 2016011422: [content]
+Ok lets test if you log out, what will happen.
+2019-01-03
+[time]22:50 2016011422: [content]
+Test
+
+2019-01-03
+[time]22:53 2016011422: [content]
+test
+
+[time]22:53 2016011422: [content]
+
+test2
+[time]22:53 2016011422: [files]
+Img_0.png
+2019-01-03
+[time]23:01  2016011399: [content]
+We are chatting now！
+
+2019-01-03
