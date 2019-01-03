@@ -35,7 +35,7 @@ namespace MySkype
             picture.Visible = false;
         }
 
-        //TODO
+        //从本地导入表情
         public Self_Dialog(bool emojiflag, string emojipath)
         {
             InitializeComponent();
@@ -52,14 +52,12 @@ namespace MySkype
             else
                 currenttime += ":" + DateTime.Now.Minute.ToString();
             time_label.Text = currenttime;
-            picture.Width = 40;
-            picture.Height = 40;
-            Size emojisize = new Size(40, 40);
-            Bitmap emoji = new Bitmap(emojipath);
-            picture.Image = new Bitmap(emoji, emojisize); // resize
+            picture.Image = Image.FromFile(emojipath);// new Bitmap(emoji, emojisize); // resize
+            picture.Refresh();
             picture.Location = new Point(320-40, 21);
             picture.Visible = true;
             picture.BringToFront();
+            Sender.Text = Glb_Value.Account;
             Chat_label.Visible = false;
         }
     }

@@ -17,12 +17,12 @@ namespace MySkype
     {
         // 定义一个事件 内部触发，交由主函数执行
         public event Send_Emoji send_emoji;
-        private static int emoji_num = 4;
-        private int[] emoji_location = new int[emoji_num];//4个表情的横坐标位置（以此作为索引）
+        private static int emoji_num = 3;
+        private int[] emoji_location = new int[emoji_num];//3个表情的横坐标位置（以此作为索引）
         public EmojiBox()
         {
             InitializeComponent();
-            this.Location = new Point(220, 200);
+            this.Location = new Point(220, 220);
             this.StartPosition = FormStartPosition.Manual;
 
             for (int i = 0; i < emoji_num; i++)
@@ -46,7 +46,7 @@ namespace MySkype
             int j = 0;
             for (int i = 0; i < this.Controls.Count; i++)
             {
-                if (x - emoji_location[this.Controls.Count-i-1] <= 70)
+                if (x - emoji_location[this.Controls.Count-i-1] <= 40)
                 {
                     j = i;
                     break;

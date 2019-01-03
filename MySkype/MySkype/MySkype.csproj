@@ -160,9 +160,6 @@
     <None Include="Resources\退出.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Emoji.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\file.png" />
   </ItemGroup>
   <ItemGroup>
@@ -190,16 +187,13 @@
     <None Include="Resources\screenshot.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\emoji_11.gif" />
+    <None Include="Resources\emoji0.gif" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\emoji_2.gif" />
+    <None Include="Resources\emoji1.gif" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\emoji_3.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\emoji_4.gif" />
+    <None Include="Resources\emoji2.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

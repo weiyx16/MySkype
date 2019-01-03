@@ -55,11 +55,8 @@ namespace MySkype
                 currenttime += ":" + DateTime.Now.Minute.ToString();
             this.time_label.Text = currenttime;
             this.time_label.BringToFront();
-            this.picture.Width = 40;
-            this.picture.Height = 40;
-            Size emojisize = new Size(40, 40);
-            Bitmap emoji = new Bitmap(emojipath);
-            this.picture.Image = new Bitmap(emoji, emojisize); // resize
+            this.picture.Image = Image.FromFile(emojipath); // resize
+            picture.Refresh();
             this.picture.Location = new Point(90, 21);
             this.picture.Visible = true;
             this.picture.BringToFront();

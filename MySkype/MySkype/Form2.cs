@@ -184,6 +184,10 @@ namespace MySkype
                     //收到了文件
                     receive_file(FrdName, received_words, Strm2Frd);                  
                 }
+                else if (received_words.StartsWith("/**Emoji**/"))
+                {
+                    process_emoji(FrdName, received_words);
+                }
                 else
                 {
                     //收到了普通文本
@@ -213,6 +217,42 @@ namespace MySkype
                 Frd_name.Text = FrdName;
                 //要把这个线程的信息显示在主线程程序上
                 Frd_Dialog show_frds = new Frd_Dialog(received_words, FrdName);
+                Chat_flowLayout.Controls.Add(show_frds);
+                show_frds.Parent = Chat_flowLayout;
+                show_frds.Show();
+            }
+        }
+
+        //处理收到的Emoji
+        private void process_emoji(string FrdName, string received_words)
+        {
+            //注意这里Acp_msg是由另一个监听的异步触发产生的线程所调用的，需要特殊的处理
+            //约束只能同时和一个人聊天/传送
+
+            //等待异步 处理
+            //调用方位于创建控件线程之外的线程里，所以对调用方进行invoke
+            if (this.Chat_flowLayout.InvokeRequired)
+            {
+                FlushClient FC = new FlushClient(process_emoji);
+                this.Invoke(FC, new object[] { FrdName, received_words }); //通过代理调用刷新方法
+            }
+            else
+            {
+                string emojihead = "/**Emoji**/";
+                string emojiindex = received_words.Substring(emojihead.Length); // 先把头去掉
+                string emojipath = "..\\..\\..\\emoji\\" + "emoji" + emojiindex + ".gif";
+                if (File.Exists(emojipath)) { }
+                else
+                {
+                    // Emoji 存储路径出错
+                    MessageBox.Show("Check the store location of emoji", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+                Glb_Value.Chat_Frd_IP = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                Glb_Value.Chat_Frd = FrdName;
+                Frd_name.Text = FrdName;
+                //要把这个线程的信息显示在主线程程序上
+                Frd_Dialog show_frds = new Frd_Dialog(true, emojipath, FrdName);
                 Chat_flowLayout.Controls.Add(show_frds);
                 show_frds.Parent = Chat_flowLayout;
                 show_frds.Show();
@@ -1112,12 +1152,10 @@ namespace MySkype
         }
 
         // 具体发送表情的函数
-        // TODO
         private void send_emoji(int number){
             emojibox.Hide();
-            number += 1; // 在存储的时候是按从1开始命名的
 
-            string emojipath = "..\\..\\..\\emoji\\" + "emoji_" + number.ToString() + ".gif";
+            string emojipath = "..\\..\\..\\emoji\\" + "emoji" + number.ToString() + ".gif";
             if (File.Exists(emojipath)) { }
             else
             {
@@ -1125,16 +1163,25 @@ namespace MySkype
                 MessageBox.Show("Check the store location of emoji", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            Self_Dialog show_mine = new Self_Dialog(true, emojipath);
-            this.Chat_flowLayout.Controls.Add(show_mine);
-            show_mine.Parent = this.Chat_flowLayout;
-            show_mine.Show();
-
-
-            //主要要让对方知道这是一个emoji要用对应的方式显示
+            string emojihead = "/**Emoji**/"; //主要要让对方知道这是一个emoji要用对应的方式显示
+            string msg = emojihead + number.ToString();
+            bool send_suc = Send_Text(msg);
+            if (!send_suc)
+            {
+                MessageBox.Show("Your friend are not available", "MissError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return; // 出现连接失败、对方下线等各种情况下，就停止发送，或者对方和别人聊天去了！
+            }
+            else
+            {
+                Self_Dialog show_mine = new Self_Dialog(true, emojipath);
+                this.Chat_flowLayout.Controls.Add(show_mine);
+                show_mine.Parent = this.Chat_flowLayout;
+                show_mine.Show();
+            }           
         }
 
-        // 点击退出当前聊天的时候，应该把这次聊天的记录存下来？
+        // 点击退出当前聊天的时候，应该把这次聊天的记录存下来
+        // 点击log out 的时候也应该把当前聊天板的信息存下来
         private void Chat_quit_Click(object sender, EventArgs e)
         {
             // TODO
