@@ -83,6 +83,18 @@
       <DependentUpon>Frd_Files.cs</DependentUpon>
     </Compile>
     <Compile Include="Glb_Value.cs" />
+    <Compile Include="historybox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="historybox.Designer.cs">
+      <DependentUpon>historybox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Hist_Dialog.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Hist_Dialog.Designer.cs">
+      <DependentUpon>Hist_Dialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="My_MessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -103,6 +115,9 @@
     <Compile Include="Self_Files.Designer.cs">
       <DependentUpon>Self_Files.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Change_IP.resx">
+      <DependentUpon>Change_IP.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EmojiBox.resx">
       <DependentUpon>EmojiBox.cs</DependentUpon>
     </EmbeddedResource>
@@ -117,6 +132,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Frd_Files.resx">
       <DependentUpon>Frd_Files.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="historybox.resx">
+      <DependentUpon>historybox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Hist_Dialog.resx">
+      <DependentUpon>Hist_Dialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My_MessageBox.resx">
       <DependentUpon>My_MessageBox.cs</DependentUpon>
@@ -194,6 +215,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\emoji2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flush.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

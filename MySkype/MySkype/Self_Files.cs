@@ -51,5 +51,19 @@ namespace MySkype
             Process.BringToFront();
             picture.BringToFront();
         }
+
+        public string get_time()
+        {
+            return time_label.Text;
+        }
+
+        public string get_files()
+        {
+            if (Process.Text.Equals("Fails!!!!"))
+            {
+                return FileName.Text + " failed";
+            }
+            return FileName.Text;
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace MySkype
         public EmojiBox()
         {
             InitializeComponent();
-            this.Location = new Point(220, 220);
+            this.Location = new Point(220, 240);
             this.StartPosition = FormStartPosition.Manual;
 
             for (int i = 0; i < emoji_num; i++)

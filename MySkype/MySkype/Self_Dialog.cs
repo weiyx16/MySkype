@@ -17,6 +17,7 @@ namespace MySkype
         {
             // 如果发送的是纯文本
             InitializeComponent();
+            isEmoji = false;
             string currenttime;
             if (DateTime.Now.Hour < 10)//小时只有1位则补零
                 currenttime = "0" + DateTime.Now.Hour.ToString();
@@ -54,11 +55,25 @@ namespace MySkype
             time_label.Text = currenttime;
             picture.Image = Image.FromFile(emojipath);// new Bitmap(emoji, emojisize); // resize
             picture.Refresh();
-            picture.Location = new Point(320-40, 21);
+            picture.Location = new Point(320 - 40, 21);
             picture.Visible = true;
             picture.BringToFront();
             Sender.Text = Glb_Value.Account;
             Chat_label.Visible = false;
+        }
+
+        public bool check_emoji()
+        {
+            return isEmoji;
+        }
+        public string get_time()
+        {
+            return time_label.Text;
+        }
+
+        public string get_content()
+        {
+            return Chat_label.Text;
         }
     }
 }

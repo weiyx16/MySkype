@@ -17,5 +17,12 @@ namespace MySkype
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
         }
+
+        private void Confirm_Click(object sender, EventArgs e)
+        {
+            Glb_Value.ServerIp = Ip_in.Text;
+            Glb_Value.ServerPort = int.Parse(Port_in.Text);
+            this.Close();
+        }
     }
 }

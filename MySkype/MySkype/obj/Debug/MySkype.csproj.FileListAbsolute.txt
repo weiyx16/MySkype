@@ -7,7 +7,6 @@ C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csproj.Generate
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.exe
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.pdb
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.MainFrm.resources
-C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csprojResolveAssemblyReference.cache
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.My_MessageBox.resources
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\bin\Debug\MySkype.exe.config
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.exe
@@ -28,3 +27,6 @@ C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Frd_Files.resou
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Frd_Files.resources
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Self_Files.resources
 C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.EmojiBox.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.csprojResolveAssemblyReference.cache
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.historybox.resources
+C:\Users\weiyx\Desktop\Network\MySkype\MySkype\obj\Debug\MySkype.Hist_Dialog.resources

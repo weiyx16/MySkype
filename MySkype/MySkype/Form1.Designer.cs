@@ -92,7 +92,7 @@
             this.Showtime.AutoSize = true;
             this.Showtime.BackColor = System.Drawing.Color.Transparent;
             this.Showtime.Font = new System.Drawing.Font("宋体", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Showtime.Location = new System.Drawing.Point(34, 20);
+            this.Showtime.Location = new System.Drawing.Point(55, 20);
             this.Showtime.Name = "Showtime";
             this.Showtime.Size = new System.Drawing.Size(54, 21);
             this.Showtime.TabIndex = 5;

@@ -189,7 +189,7 @@ namespace MySkype
         }
 
         // Help change the IP and Port
-        // 这个函数还没写 changeIp的窗口 TODO:
+        // changeIp的窗口
         private void IP_change_MouseClick(object sender, MouseEventArgs e)
         {
             Change_IP change_ip = new Change_IP();

@@ -17,7 +17,7 @@ namespace MySkype
         {
             InitializeComponent();
             // 如果发送的是纯文本
-            InitializeComponent();
+            isEmoji = false;
             string currenttime;
             if (DateTime.Now.Hour < 10)//小时只有1位则补零
                 currenttime = "0" + DateTime.Now.Hour.ToString();
@@ -65,5 +65,19 @@ namespace MySkype
             this.Sender.BringToFront();
         }
 
+
+        public bool check_emoji()
+        {
+            return isEmoji;
+        }
+        public string get_time()
+        {
+            return time_label.Text;
+        }
+
+        public string get_content()
+        {
+            return Chat_label.Text;
+        }
     }
 }

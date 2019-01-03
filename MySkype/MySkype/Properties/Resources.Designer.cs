@@ -203,6 +203,16 @@ namespace MySkype.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap flush {
+            get {
+                object obj = ResourceManager.GetObject("flush", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap History {
             get {
                 object obj = ResourceManager.GetObject("History", resourceCulture);

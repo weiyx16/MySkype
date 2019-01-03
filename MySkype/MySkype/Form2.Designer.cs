@@ -39,6 +39,7 @@
             this.Chat_quit = new System.Windows.Forms.Button();
             this.Logout_label = new System.Windows.Forms.Label();
             this.Frd_flowLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.flush_hist = new System.Windows.Forms.PictureBox();
             this.Welcome_img = new System.Windows.Forms.PictureBox();
             this.History = new System.Windows.Forms.PictureBox();
             this.Shots = new System.Windows.Forms.PictureBox();
@@ -49,6 +50,7 @@
             this.TopLeft = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.Chat_bg = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.flush_hist)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Welcome_img)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.History)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Shots)).BeginInit();
@@ -151,6 +153,8 @@
             this.Chat_quit.Text = "Quit Current";
             this.Chat_quit.UseVisualStyleBackColor = false;
             this.Chat_quit.Click += new System.EventHandler(this.Chat_quit_Click);
+            this.Chat_quit.MouseLeave += new System.EventHandler(this.Chat_quit_MouseLeave);
+            this.Chat_quit.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Chat_quit_MouseMove);
             // 
             // Logout_label
             // 
@@ -171,6 +175,17 @@
             this.Frd_flowLayout.Size = new System.Drawing.Size(189, 358);
             this.Frd_flowLayout.TabIndex = 17;
             // 
+            // flush_hist
+            // 
+            this.flush_hist.BackColor = System.Drawing.Color.White;
+            this.flush_hist.Image = global::MySkype.Properties.Resources.flush;
+            this.flush_hist.Location = new System.Drawing.Point(153, 55);
+            this.flush_hist.Name = "flush_hist";
+            this.flush_hist.Size = new System.Drawing.Size(17, 17);
+            this.flush_hist.TabIndex = 20;
+            this.flush_hist.TabStop = false;
+            this.flush_hist.Click += new System.EventHandler(this.flush_hist_Click);
+            // 
             // Welcome_img
             // 
             this.Welcome_img.BackColor = System.Drawing.SystemColors.Control;
@@ -190,6 +205,9 @@
             this.History.Size = new System.Drawing.Size(22, 20);
             this.History.TabIndex = 12;
             this.History.TabStop = false;
+            this.History.Click += new System.EventHandler(this.History_Click);
+            this.History.MouseLeave += new System.EventHandler(this.History_MouseLeave);
+            this.History.MouseMove += new System.Windows.Forms.MouseEventHandler(this.History_MouseMove);
             // 
             // Shots
             // 
@@ -245,9 +263,9 @@
             // 
             this.Search_button.BackColor = System.Drawing.Color.White;
             this.Search_button.Image = global::MySkype.Properties.Resources.search_small;
-            this.Search_button.Location = new System.Drawing.Point(136, 54);
+            this.Search_button.Location = new System.Drawing.Point(130, 55);
             this.Search_button.Name = "Search_button";
-            this.Search_button.Size = new System.Drawing.Size(19, 19);
+            this.Search_button.Size = new System.Drawing.Size(17, 17);
             this.Search_button.TabIndex = 4;
             this.Search_button.TabStop = false;
             this.Search_button.Click += new System.EventHandler(this.Search_button_Click);
@@ -286,6 +304,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(626, 454);
+            this.Controls.Add(this.flush_hist);
             this.Controls.Add(this.Logout_label);
             this.Controls.Add(this.Chat_quit);
             this.Controls.Add(this.Welcome_img);
@@ -309,6 +328,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainFrm";
             this.Text = "MainFrm";
+            ((System.ComponentModel.ISupportInitialize)(this.flush_hist)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Welcome_img)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.History)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Shots)).EndInit();
@@ -346,5 +366,6 @@
         private System.Windows.Forms.FlowLayoutPanel Frd_flowLayout;
         private System.Windows.Forms.PictureBox Chat_bg;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PictureBox flush_hist;
     }
 }

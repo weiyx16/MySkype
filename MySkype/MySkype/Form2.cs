@@ -95,6 +95,9 @@ namespace MySkype
                 Welcome_img.Image = new Bitmap(Properties.Resources.night, Welcome_img.Width, Welcome_img.Height);
             }
 
+            //左边显示之前聊天过的人
+            hist_frd_show();
+
             //开始后台进程的侦听程序
             LstThd = new Thread(Listen);
             LstThd.IsBackground = true;
@@ -106,6 +109,29 @@ namespace MySkype
             emojibox.send_emoji += new Send_Emoji(send_emoji);//增加委托触发
         }
 
+        // 初始左侧显示有过聊天记录的朋友以及最后一条记录
+        private void hist_frd_show()
+        {
+            Frd_flowLayout.Controls.Clear();
+            string savepath = ".\\" + Glb_Value.Account + "\\Recode\\";
+            if (Directory.Exists(savepath))
+            {
+                DirectoryInfo folder = new DirectoryInfo(savepath);
+                foreach (FileInfo file in folder.GetFiles("*.txt"))
+                {
+                    string filename = file.FullName;
+                    string Frd_name = filename.Substring(filename.LastIndexOf("_") + 1, 10);
+                    if (Frd_name == Glb_Value.Account) { continue; }
+                    string hist_words = File.ReadAllLines(filename).Last();
+                    string all_content = File.ReadAllText(filename);
+                    string hist_time = all_content.Substring(all_content.LastIndexOf("[time]") + 6, 5);
+                    Hist_Dialog show_recent = new Hist_Dialog(hist_words, Frd_name, hist_time);
+                    Frd_flowLayout.Controls.Add(show_recent);
+                    show_recent.Parent = Frd_flowLayout;
+                    show_recent.Show();
+                }
+            }
+        }
         /*
          ------------ 开始后台线程监听别人发的消息 -------------
              */
@@ -752,6 +778,25 @@ namespace MySkype
             DialogResult Dr = MessageBox.Show("Ready to logout?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (Dr == DialogResult.OK)
             {
+                string savepath = ".\\" + Glb_Value.Account + "\\Recode";
+                if (Directory.Exists(savepath)) { }
+                else
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(savepath);
+                    directoryInfo.Create();
+                }
+                string savename = savepath + "\\H_" + Glb_Value.Chat_Frd + ".txt";
+                if (File.Exists(savename))
+                {
+                    FileStream fs = new FileStream(savename, FileMode.Open, FileAccess.Write); //打开已有文件
+                    recode_save(fs);
+                }
+                else
+                {
+                    FileStream fs = new FileStream(savename, FileMode.Create, FileAccess.Write);//创建写入文件 
+                    recode_save(fs);
+                }
+
                 TcpClient client = new TcpClient();
                 // try to connect the client and check if we lose it
                 try
@@ -1184,10 +1229,27 @@ namespace MySkype
         // 点击log out 的时候也应该把当前聊天板的信息存下来
         private void Chat_quit_Click(object sender, EventArgs e)
         {
-            // TODO
             DialogResult Dr = MessageBox.Show("Ready to Quit Current dialog?", "Check", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (Dr == DialogResult.OK)
             {
+                string savepath = ".\\" + Glb_Value.Account + "\\Recode";
+                if (Directory.Exists(savepath)) {}
+                else
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(savepath);
+                    directoryInfo.Create();
+                }
+                string savename = savepath + "\\H_" + Glb_Value.Chat_Frd + ".txt";
+                if (File.Exists(savename)) {
+                    FileStream fs = new FileStream(savename, FileMode.Open, FileAccess.Write); //打开已有文件
+                    recode_save(fs);
+                }
+                else
+                {
+                    FileStream fs = new FileStream(savename, FileMode.Create, FileAccess.Write);//创建写入文件 
+                    recode_save(fs);
+                }
+
                 Glb_Value.Chatting = false;
                 Glb_Value.Chat_Frd = Glb_Value.Account;
                 Frd_name.Text = Glb_Value.Account;
@@ -1196,6 +1258,82 @@ namespace MySkype
             }
         }
 
+        //遍历chat flowlayout 将所有信息存入本地txt
+        private void recode_save(FileStream fs)
+        {
+            StreamWriter sr = new StreamWriter(fs);
+            sr.BaseStream.Seek(0, SeekOrigin.End);
+            string chat_data = DateTime.Now.ToString("yyyy-MM-dd");
+            sr.WriteLine(chat_data);//开始写入值
+            foreach (Control ctrl in this.Chat_flowLayout.Controls)
+            {
+                if (ctrl.GetType().ToString() == "MySkype.Frd_Dialog")
+                {
+                    string curr_time = "[time]"+(ctrl as Frd_Dialog).get_time();
+                    if ((ctrl as Frd_Dialog).check_emoji())
+                    {
+                        sr.WriteLine(curr_time + " " + Glb_Value.Chat_Frd + ": [emoji]");
+                        sr.WriteLine("Deliver a Emoji");
+                    }
+                    else
+                    {
+                        sr.WriteLine(curr_time + " " + Glb_Value.Chat_Frd + ": [content]");
+                        sr.WriteLine((ctrl as Frd_Dialog).get_content());
+                    }
+                }
+                if (ctrl.GetType().ToString() == "MySkype.Self_Dialog")
+                {
+                    string curr_time = "[time]" + (ctrl as Self_Dialog).get_time();
+                    if ((ctrl as Self_Dialog).check_emoji())
+                    {
+                        sr.WriteLine(curr_time + " " + Glb_Value.Account + ": [emoji]");
+                    }
+                    else
+                    {
+                        sr.WriteLine(curr_time + "  " + Glb_Value.Account + ": [content]");
+                        sr.WriteLine((ctrl as Self_Dialog).get_content());
+                    }
+                }
+                if (ctrl.GetType().ToString() == "MySkype.Frd_Files")
+                {
+                    string curr_time = "[time]" + (ctrl as Frd_Files).get_time();
+                    sr.WriteLine(curr_time + " " + Glb_Value.Chat_Frd + ": [files]");
+                    sr.WriteLine((ctrl as Frd_Files).get_files());
+                }
+                if (ctrl.GetType().ToString() == "MySkype.Self_Files")
+                {
+                    string curr_time = "[time]" + (ctrl as Self_Files).get_time();
+                    sr.WriteLine(curr_time + " " + Glb_Value.Account + ": [files]");
+                    sr.WriteLine((ctrl as Self_Files).get_files());
+                }
+            }
+            sr.Flush();
+            sr.Close();
+            fs.Close();
+        }
+
+        //查看历史消息
+        private void History_Click(object sender, EventArgs e)
+        {
+            if (Glb_Value.Chat_Frd == Glb_Value.Account)
+            {
+                MessageBox.Show("No history with yourself", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                string savepath = ".\\" + Glb_Value.Account + "\\Recode\\";
+                string savename = savepath + "H_" + Glb_Value.Chat_Frd + ".txt";
+                if (!File.Exists(savename)) {
+                    MessageBox.Show("No history with him", "ObjectError!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                else
+                {
+                    historybox hb = new historybox(savename);
+                    hb.Show();
+                }
+                
+            }
+        }
         /*
          ----------- 一些辅助效果 ---------------
              */
@@ -1269,6 +1407,38 @@ namespace MySkype
             MyMessageBox.Visible = false;
         }
 
+        //划过History 有显示
+        private void History_MouseMove(object sender, MouseEventArgs e)
+        {
+            MyMessageBox.set_message("History with this friend");
+            Point pt = Control.MousePosition;
+            MyMessageBox.set_position(pt.X, pt.Y + 10);
+            MyMessageBox.Show();
+        }
 
+        private void History_MouseLeave(object sender, EventArgs e)
+        {
+            MyMessageBox.Visible = false;
+        }
+
+        //划过退出当前聊天有显示
+        private void Chat_quit_MouseMove(object sender, MouseEventArgs e)
+        {
+            MyMessageBox.set_message("Quit current chatting");
+            Point pt = Control.MousePosition;
+            MyMessageBox.set_position(pt.X, pt.Y + 10);
+            MyMessageBox.Show();
+        }
+
+        private void Chat_quit_MouseLeave(object sender, EventArgs e)
+        {
+            MyMessageBox.Visible = false;
+        }
+
+        //手动刷新历史
+        private void flush_hist_Click(object sender, EventArgs e)
+        {
+            hist_frd_show();
+        }
     }
 }
