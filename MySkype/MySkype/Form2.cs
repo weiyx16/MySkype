@@ -268,7 +268,7 @@ namespace MySkype
             {
                 string emojihead = "/**Emoji**/";
                 string emojiindex = received_words.Substring(emojihead.Length); // 先把头去掉
-                string emojipath = "..\\..\\..\\emoji\\" + "emoji" + emojiindex + ".gif";
+                string emojipath = "emoji\\" + "emoji" + emojiindex + ".gif";
                 if (File.Exists(emojipath)) { }
                 else
                 {
@@ -1204,7 +1204,7 @@ namespace MySkype
         private void send_emoji(int number){
             emojibox.Hide();
 
-            string emojipath = "..\\..\\..\\emoji\\" + "emoji" + number.ToString() + ".gif";
+            string emojipath = "emoji\\" + "emoji" + number.ToString() + ".gif";
             if (File.Exists(emojipath)) { }
             else
             {
@@ -1291,6 +1291,7 @@ namespace MySkype
                     if ((ctrl as Self_Dialog).check_emoji())
                     {
                         sr.WriteLine(curr_time + " " + Glb_Value.Account + ": [emoji]");
+                        sr.WriteLine("Deliver a Emoji");
                     }
                     else
                     {

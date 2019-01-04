@@ -29,7 +29,7 @@ namespace MySkype
             FileName.Text = filename;
             FileName.Visible = true;
             FileName.BringToFront();
-            Sender.Text = Glb_Value.Account;
+            Sender.Text = Glb_Value.Chat_Frd;
             Sender.BringToFront();
             if (processing != -1)
             {

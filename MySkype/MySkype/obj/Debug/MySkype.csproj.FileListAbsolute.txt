@@ -34,4 +34,3 @@ C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Change_
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.EmojiBox.resources
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.historybox.resources
 C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.Hist_Dialog.resources
-C:\Users\Eason\Desktop\network\MySkype\MySkype\MySkype\obj\Debug\MySkype.csprojResolveAssemblyReference.cache

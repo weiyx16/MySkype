@@ -40,6 +40,7 @@
             // 
             this.FileName.AutoSize = true;
             this.FileName.Location = new System.Drawing.Point(131, 24);
+            this.FileName.MaximumSize = new System.Drawing.Size(150, 12);
             this.FileName.Name = "FileName";
             this.FileName.Size = new System.Drawing.Size(29, 12);
             this.FileName.TabIndex = 11;
